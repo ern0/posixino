@@ -43,10 +43,10 @@ so you can compile your sketch without makefile.
 
 ### Now ###
 
-The library is in early stage, list of working functions:
+The library is in early stage:
 
-- `Serial.print` functions work
-- `digitalWrite` works
+- `Serial.print` works,
+- `digitalWrite` works with console output.
 
 Stubs created for `WebClient`.
 
