@@ -46,7 +46,7 @@ so you can compile your sketch without makefile.
 The library is in early stage:
 
 - `Serial.print` works,
-- `digitalWrite` works with console output.
+- `digitalWrite` works, output states are displayed on console.
 
 Stubs created for `WebClient`.
 
