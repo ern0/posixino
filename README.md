@@ -9,9 +9,6 @@ for POSIX systems (Linux, BSD, Mac OS X).
 Check `test/` folder, these are the official example scketches
 which will work with Posixino.
 
-The main focus is to implement network-related
-libraries (web client, web server).
-
 ### Why ###
 
 So, why should you compile Arduino
@@ -43,3 +40,22 @@ Simply replace Arduino-specific includes:
 
 Quick-and-dirty: you may include `posixino.cpp`, 
 so you can compile your sketch without makefile.
+
+### Now ###
+
+The library is in early stage, 
+only some very basic support:
+
+- `Serial.print` functions work
+- `digitalWrite` works
+
+### Plans ###
+
+The main focus is to implement network-related
+libraries (web client, web server).
+
+Maybe I'll implement some kind of LCD display emulation.
+
+One day in the future, 
+I will split these big files one-class-per-pair-of-files fashion,
+and contribution will be easier.
