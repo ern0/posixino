@@ -43,7 +43,7 @@ so you can compile your sketch without makefile.
 
 ### Now ###
 
-The library is in early stage, list of working libs:
+The library is in early stage, list of working functions:
 
 - `Serial.print` functions work
 - `digitalWrite` works
