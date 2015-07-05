@@ -1,5 +1,5 @@
 # ifdef __unix
-# include "../src/posixino.cpp"
+# include "../../src/posixino.cpp"
 # else
 
 #include <SPI.h>

@@ -1,6 +1,10 @@
 # ifndef _posixino
 # define _posixino
 
+
+# define NO_OF_DIGI_OUTS (20)
+
+
 # include <stdlib.h>
 # include <stdio.h>
 # include <unistd.h>
@@ -17,6 +21,7 @@ void loop();
 void delay(int ms);
 void pinMode(int no,int mode);
 void digitalWrite(int no,int value);
+int millis();
 
 
 // Arduino types and constants
@@ -32,13 +37,14 @@ typedef unsigned char byte;
 // Implementation
 
 class SerialClass;
+class LiquidCrystal;
 
 class Posixino {
 
 	friend SerialClass;
+	friend LiquidCrystal;
 
 	private:
-		# define NO_OF_DIGI_OUTS (32)
 		int pinModeList[NO_OF_DIGI_OUTS];
 		int pinValueList[NO_OF_DIGI_OUTS];
 		bool isDigitalOutsUsed;
@@ -53,8 +59,9 @@ class Posixino {
 	public:
 		void init();
 		void delay(int ms);
+		int millis();
 		void pinMode(int no,int mode);
-		void digitalWrite(int no,int value);
+		void digitalWrite(int no,int value);		
 
 }; // Posixino
 
@@ -113,5 +120,24 @@ class EthernetClass {
 	
 }; // class EthernetClass
 
+
+class LiquidCrystal {
+
+	private:
+		bool isInitialized;
+		int w;
+		int h;
+		int x;
+		int y;
+	protected:
+		void checkInitialization();
+	public:
+		LiquidCrystal(int p1,int p2,int p3,int p4,int p5, int p6);
+		void begin(int w,int h);
+		void setCursor(int x,int y);
+		void print(const char* str);
+		void print(int v);
+
+}; // class LiquidCrystal
 
 # endif

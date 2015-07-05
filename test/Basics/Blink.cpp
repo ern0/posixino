@@ -1,5 +1,5 @@
 # ifdef __unix
-# include "../src/posixino.cpp"
+# include "../../src/posixino.cpp"
 # endif
 
 /*
@@ -25,5 +25,4 @@ void loop() {
   delay(1000);               // wait for a second
   digitalWrite(led, LOW);    // turn the LED off by making the voltage LOW
   delay(1000);               // wait for a second
-  Serial.println("dfdf");
 }

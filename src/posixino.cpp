@@ -12,6 +12,7 @@
 
 
 	void delay(int ms) { posixino.delay(ms); }
+	int millis() { return posixino.millis(); }
 	void pinMode(int no,int mode) { posixino.pinMode(no,mode); }
 	void digitalWrite(int no,int value) { posixino.digitalWrite(no,value); }
 
@@ -33,6 +34,14 @@
 		usleep(1000 * ms);
 	} // delay()
 
+
+	int Posixino::millis() {
+	
+		/// TODO
+		
+		return 0;
+	} // millis()
+	
 
 	void Posixino::pinMode(int no,int mode) {		
 	
@@ -105,8 +114,7 @@
 		if (isDigitalOutsDisplayed) updateDigitalOuts();
 	} // restoreDigitalOuts()
 	
-
-
+	
 	SerialClass Serial;
 	
 	
@@ -115,6 +123,11 @@
 	} // SerialClass() ctor
 	
 	
+	bool operator !(SerialClass ser) {
+		return false;
+	}	// operator !(SerialClass)
+
+
 	void SerialClass::checkInitialization() {
 	
 		if (isInitialized) return;
@@ -126,11 +139,6 @@
 	} // checkInitialization()
 	
 	
-	bool operator !(SerialClass ser) {
-		return false;
-	}	// operator !(SerialClass)
-
-
 	void SerialClass::begin(int speed) {	
 		isInitialized = true;
 	} // begin()
@@ -225,3 +233,53 @@
 		/// TODO
 		
 	} // stop()
+
+
+	LiquidCrystal::LiquidCrystal(int p1,int p2,int p3,int p4,int p5,int p6) {
+		// this method is officially left blank		
+	} // LiquidCrystalClass() ctor
+
+
+	void LiquidCrystal::checkInitialization() {
+	
+		if (isInitialized) return;
+		
+		posixino.printErrorPrefix();
+		fprintf(stderr,"LCD must be initialized first \n");
+		exit(1);
+		
+	} // checkInitialization()
+	
+	
+	void LiquidCrystal::begin(int pw,int ph) {	
+		
+		isInitialized = true;
+		
+		w = pw;
+		h = ph;
+		x = 0;
+		y = 0;		
+		
+	} // begin()
+
+
+	void LiquidCrystal::setCursor(int px,int py) {
+		x = px;
+		y = py;
+	} // setCursor)_
+	
+	
+	void LiquidCrystal::print(const char* str) {
+	
+		/// TODO
+		
+	} // print()
+	
+	
+	void LiquidCrystal::print(int v) {
+	
+		char str[80];
+		sprintf(str,"%d",v);
+		print(str);
+		
+	} // print()
