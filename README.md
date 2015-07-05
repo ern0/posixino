@@ -1,18 +1,18 @@
 Posixino
 ========
 
-# What #
+### What ###
 
 Implementation of some Arduino libraries 
 for POSIX systems (Linux, BSD, Mac OS X).
 
-Check `test` folder, these are the official example scketches
+Check `test/` folder, these are the official example scketches
 which will work with Posixino.
 
 The main focus is to implement network-related
 libraries (web client, web server).
 
-# Why #
+### Why ###
 
 So, why should you compile Arduino
 *sketches* for a non-embedded system?
@@ -26,7 +26,7 @@ So, why should you compile Arduino
 But remember, I don't want to to throw your devices away,
 developing for embedded platforms is **fun**!
 
-# How #
+### How ###
 
 Simply replace Arduino-specific includes:
 
