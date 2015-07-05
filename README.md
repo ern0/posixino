@@ -16,7 +16,7 @@ So, why should you compile Arduino
 
 - You can write unit tests
 - You can debug the code
-- You can develop and test off-board
+- You can develop without proper device (e.g. missing LCD)
 - Shorter compile-run cycle
 - More comfortable
 
@@ -48,14 +48,12 @@ The library is in early stage:
 - `Serial.print` works,
 - `digitalWrite` works, output states are displayed on console.
 
-Stubs created for `WebClient`.
+Stubs created for `WebClient` and `LiquidCrystal`.
 
 ### Plans ###
 
 The main focus is to implement network-related
 libraries (web client, web server).
-
-Maybe I'll implement some kind of LCD display emulation.
 
 One day in the future, 
 I will split these big files one-class-per-pair-of-files fashion,
