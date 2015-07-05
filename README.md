@@ -32,7 +32,7 @@ Simply replace Arduino-specific includes:
 
 ```
 # ifdef __unix
-# include "../src/posixino.hpp"
+# include "posixino/posixino.hpp"
 # else
 
 #include <SPI.h>
