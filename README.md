@@ -55,7 +55,7 @@ Stubs created for `WebClient`.
 
 Here's the output of the `LiquidCrystal/HelloWorld.cpp` example sketch:
     
-...
+```
     ________________
 LCD|hello, world!   |
 LCD|                |
@@ -68,7 +68,7 @@ LCD|1               |
     ________________
 LCD|hello, world!   |
 LCD|2               |
-...
+```
 
 
 ### Plans ###
