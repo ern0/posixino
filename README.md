@@ -47,8 +47,29 @@ The library is in early stage:
 
 - `Serial.print` works,
 - `digitalWrite` works, output states are displayed on console.
+- `LiquidCrystal` works, LCD display content is rendered on the screen upon each change
 
-Stubs created for `WebClient` and `LiquidCrystal`.
+Stubs created for `WebClient`. 
+
+### Example ###
+
+Here's the output of the `LiquidCrystal/HelloWorld.cpp` example sketch:
+    
+...
+    ________________
+LCD|hello, world!   |
+LCD|                |
+    ________________
+LCD|hello, world!   |
+LCD|0               |
+    ________________
+LCD|hello, world!   |
+LCD|1               |
+    ________________
+LCD|hello, world!   |
+LCD|2               |
+...
+
 
 ### Plans ###
 

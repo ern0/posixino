@@ -8,6 +8,8 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include <unistd.h>
+# include <string.h>
+# include <sys/time.h>
 
 
 // Unix entry point
@@ -49,10 +51,13 @@ class Posixino {
 		int pinValueList[NO_OF_DIGI_OUTS];
 		bool isDigitalOutsUsed;
 		bool isDigitalOutsDisplayed;
+		unsigned long long startMillis;
 
 	protected:
+		void outOfMem();
+		unsigned long long millisSinceEpoch();
 		void printErrorPrefix();
-		void updateDigitalOuts();
+		void renderDigitalOuts();
 		void eraseDigitalOuts();
 		void restoreDigitalOuts();
 
@@ -70,8 +75,10 @@ class SerialClass {
 
 	private:
 		bool isInitialized;
+		int posx;
 	protected:
 		void checkInitialization();
+		void printChar(const char chr);
 	public:
 		SerialClass();
 		void begin(int speed);
@@ -129,8 +136,13 @@ class LiquidCrystal {
 		int h;
 		int x;
 		int y;
+		int screenSize;
+		unsigned char* lastScreen;
+		unsigned char* actualScreen;
 	protected:
 		void checkInitialization();
+		bool isChanged();
+		void renderScreen();
 	public:
 		LiquidCrystal(int p1,int p2,int p3,int p4,int p5, int p6);
 		void begin(int w,int h);

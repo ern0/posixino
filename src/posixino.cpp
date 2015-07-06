@@ -27,19 +27,42 @@
 			pinValueList[n] = -1;
 		}
 		
+		startMillis = millisSinceEpoch();
+		
 	} // init()
 
+
+	void Posixino::outOfMem() {
+		printErrorPrefix();
+		fprintf(stderr,"out of memory \n");
+		exit(1);
+	} // outOfMem()
+	
 
 	void Posixino::delay(int ms) {
 		usleep(1000 * ms);
 	} // delay()
 
 
+	unsigned long long Posixino::millisSinceEpoch() {
+	
+		struct timeval tv;
+		gettimeofday(&tv,NULL);
+
+		unsigned long long millisecondsSinceEpoch =
+			(unsigned long long)(tv.tv_sec) * 1000 +
+			(unsigned long long)(tv.tv_usec) / 1000;
+
+		return millisecondsSinceEpoch;
+	} // millisSinceEpoch()
+
+
 	int Posixino::millis() {
 	
-		/// TODO
+		unsigned long long now = millisSinceEpoch();
+		int result = (int)(now - startMillis);
 		
-		return 0;
+		return result;
 	} // millis()
 	
 
@@ -79,7 +102,7 @@
 		isDigitalOutsUsed = true;
 		if (pinValueList[no] == value) return;
 		pinValueList[no] = value;
-		updateDigitalOuts();
+		renderDigitalOuts();
 	
 	} // digitalWrite()
 	
@@ -90,11 +113,11 @@
 	} // printErrorPrefix()
 	
 	
-	void Posixino::updateDigitalOuts() {
+	void Posixino::renderDigitalOuts() {
 	
 		if (!isDigitalOutsUsed) return;
 
-		fprintf(stderr,"\r");
+		fprintf(stderr,"\rDIG: ");
 		for (int n = 0; n < NO_OF_DIGI_OUTS; n++) {
 			fprintf(stderr,"%c",( pinValueList[n] == HIGH ? 'X' : '.' ));
 		}
@@ -102,7 +125,7 @@
 		
 		isDigitalOutsDisplayed = true;
 	
-	} // updateDigitalOuts()
+	} // renderDigitalOuts()
 	
 	
 	void Posixino::eraseDigitalOuts() {	
@@ -111,7 +134,7 @@
 	
 	
 	void Posixino::restoreDigitalOuts() {
-		if (isDigitalOutsDisplayed) updateDigitalOuts();
+		if (isDigitalOutsDisplayed) renderDigitalOuts();
 	} // restoreDigitalOuts()
 	
 	
@@ -120,6 +143,7 @@
 	
 	SerialClass::SerialClass() {
 		isInitialized = false;
+		posx = 0;
 	} // SerialClass() ctor
 	
 	
@@ -144,31 +168,48 @@
 	} // begin()
 	
 
+	void SerialClass::printChar(const char chr) {
+	
+		if (posx == 0) printf("SER: ");
+		
+		printf("%c",chr);
+		
+		if (chr == 0x0a) {
+			posx = 0;
+		} else {
+			posx++;
+		}
+		
+	} // print(char)
+
+
 	void SerialClass::print(const char chr) {
 		checkInitialization();
 		posixino.eraseDigitalOuts();
-		printf("%c",chr);
-	} // print(char)
+		printChar(chr);
+	} // print()
 
 
 	void SerialClass::print(const char* str) {
 		checkInitialization();
 		posixino.eraseDigitalOuts();
-		printf("%s",str);
+		int len = strlen(str);
+		for (int n = 0; n < len; n++) printChar(str[n]);
 	} // print()
 
 
 	void SerialClass::println() {
 		checkInitialization();
 		posixino.eraseDigitalOuts();
-		println("");
+		printChar('\n');
 	} // println()
 
 
 	void SerialClass::println(const char* str) {
 		checkInitialization();
 		posixino.eraseDigitalOuts();
-		printf("%s\n",str);
+		print(str);
+		printChar('\n');
 	} // println(char*)
 	
 
@@ -251,12 +292,56 @@
 	} // checkInitialization()
 	
 	
+	bool LiquidCrystal::isChanged() {
+	
+		for (int n = 0; n < screenSize; n++) {
+			if (actualScreen[n] == lastScreen[n]) continue;
+			return true;
+		}
+		
+		return false;
+	} // isChanged()
+	
+	
+	void LiquidCrystal::renderScreen() {
+
+		posixino.eraseDigitalOuts();
+		
+		printf("    ");
+		for (int n = 0; n < w; n++) printf("_");
+		printf("\n");
+		
+		int posx = 0;
+		for (int n = 0; n < screenSize; n++) {
+			if (posx == 0) printf("LCD|");
+			printf("%c",actualScreen[n]);
+			lastScreen[n] = actualScreen[n];
+			posx++;
+			if (posx < w) continue;
+			posx = 0;
+			printf("|\n");
+		} // for screen		
+	
+		posixino.renderDigitalOuts();
+	
+	} // renderScreen()
+	
+	
 	void LiquidCrystal::begin(int pw,int ph) {	
 		
 		isInitialized = true;
 		
 		w = pw;
 		h = ph;
+		
+		screenSize = w * h;
+		actualScreen = (unsigned char*)malloc(screenSize);
+		if (actualScreen == NULL) posixino.outOfMem();
+		memset(actualScreen,0x20,screenSize);
+		lastScreen = (unsigned char*)malloc(screenSize);
+		if (lastScreen == NULL) posixino.outOfMem();
+		memset(lastScreen,0x20,screenSize);		
+		
 		x = 0;
 		y = 0;		
 		
@@ -266,12 +351,17 @@
 	void LiquidCrystal::setCursor(int px,int py) {
 		x = px;
 		y = py;
-	} // setCursor)_
+	} // setCursor()
 	
 	
 	void LiquidCrystal::print(const char* str) {
 	
-		/// TODO
+		int len = strlen(str);
+		int pos = y * w + x;
+		for (int n = 0; n < len; n++) actualScreen[pos++] = str[n];
+		x += len;
+
+		if (isChanged()) renderScreen();
 		
 	} // print()
 	
