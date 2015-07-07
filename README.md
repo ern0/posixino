@@ -39,7 +39,7 @@ Posixino is trying to mimic the behavior of the original libraries,
 but there is a good chance that something will work different way,
 so testing your program on real hardware is important.
 
-### Example ###
+### Demo (kinda) ###
 
 Here's the output of the 
 `LiquidCrystal/HelloWorld.cpp` example sketch:
@@ -84,7 +84,7 @@ so you will compile your sketch with Posixino as a single program.
 Check `test/` folder, there are the official example scketches
 which will work on your Unix system.
 
-The library is in early stage:
+The Posixino framework is in early stage:
 
 - `Serial.print` works.
 - `digitalWrite` works, output states are displayed on console.
