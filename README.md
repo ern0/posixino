@@ -94,4 +94,4 @@ LCD display content is rendered on the screen upon each change.
 Method stubs created for `WebClient` 
 (it will be compiled, but does not work). 
 
-Posixino is only tested on Linux yet.
+Posixino is only tested on Linux.
