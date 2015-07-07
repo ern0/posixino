@@ -3,72 +3,46 @@ Posixino
 
 ### About ###
 
-Posixino is a framework for 
-POSIX systems (Linux, BSD, Mac OS X),
-which makes possible to compile and run
-Arduino sketches on desktop computers.
+Posixino is the re-implementation 
+of the most important Arduino libraries for
+POSIX systems (Linux, BSD, Mac OS X).
+It makes possible to compile and run
+Arduino sketches on desktop computers
+without modifications.
 
-The most important Arduino libraries are 
-reimplemented for Unix systems,
-check library and function list below 
-for the complete list. 
+### Focus ###
+
 The main focus is to implement network-related
-libraries (web client, web server),
-and essentials (digital inputs and outputs, LCD).
+functions (web client, web server),
+and basics (digital inputs and outputs, LCD).
+Check library and function list for coverage. 
 
-The li
+Posixino is designed to produce CLI programs;
+serial output, digital out states, LCD display content etc.
+will appear on the console.
 
+### Benefits ###
 
-
-
-Check `test/` folder, there are the official example scketches
-which will work on your Linux  Posixino.
-
-### Why ###
-
-So, why should you compile Arduino
-*sketches* for a non-embedded system?
+But why should you compile Arduino
+sketches for a non-embedded system?
 
 - You can write unit tests
-- You can debug the code
-- You can develop without proper device (e.g. missing LCD)
+- You can debug your code
+- You can work even without proper hardware (e.g. missing shield)
 - Shorter compile-run cycle
 - More comfortable
 
-But remember, I don't want to to throw your devices away,
-developing for embedded platforms is **fun**!
+Of course, I don't want you to throw your device away,
+embedded programming is fun and joy. 
 
-### How ###
-
-Simply replace Arduino-specific includes:
-
-```
-# ifdef __unix
-# include "posixino/posixino.hpp"
-# else
-
-#include <SPI.h>
-#include <Ethernet.h>
-
-# endif
-```
-
-Quick-and-dirty: you may include `posixino.cpp`, 
-so you can compile your sketch without makefile.
-
-### Now ###
-
-The library is in early stage:
-
-- `Serial.print` works,
-- `digitalWrite` works, output states are displayed on console.
-- `LiquidCrystal` works, LCD display content is rendered on the screen upon each change
-
-Stubs created for `WebClient`. 
+Posixino is trying to mimic the behavior of the original libraries,
+but there is a good chance that something will work different way,
+so testing your program on real hardware is important.
 
 ### Example ###
 
-Here's the output of the `LiquidCrystal/HelloWorld.cpp` example sketch:
+Here's the output of the 
+`LiquidCrystal/HelloWorld.cpp` example sketch:
     
 ```
     ________________
@@ -85,11 +59,36 @@ LCD|hello, world!   |
 LCD|2               |
 ```
 
+### How to use ###
 
-### Plans ###
+Simply add Posixino header include to your program:
 
+```
+# ifdef __unix
+# include "posixino/posixino.hpp"
+# else
 
+#include <SPI.h>
+#include <Ethernet.h>
 
-One day in the future, 
-I will split these big files one-class-per-pair-of-files fashion,
-and contribution will be easier.
+# endif
+```
+Compile both Posixino and your program,
+then link them together.
+
+Quick-and-dirty: you may include `posixino.cpp`, 
+so you will compile your sketch with Posixino as a single program.
+
+### Coverage ###
+
+Check `test/` folder, there are the official example scketches
+which will work on your Linux  Posixino.
+
+The library is in early stage:
+
+- `Serial.print` works,
+- `digitalWrite` works, output states are displayed on console.
+- `LiquidCrystal` works, LCD display content is rendered on the screen upon each change
+
+Method stubs created for `WebClient` 
+(it will be compiled, but does not work). 
