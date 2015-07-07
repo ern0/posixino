@@ -86,9 +86,10 @@ which will work on your Unix system.
 
 The library is in early stage:
 
-- `Serial.print` works,
+- `Serial.print` works.
 - `digitalWrite` works, output states are displayed on console.
-- `LiquidCrystal` works, LCD display content is rendered on the screen upon each change
+- `LiquidCrystal` works, 
+LCD display content is rendered on the screen upon each change.
 
 Method stubs created for `WebClient` 
 (it will be compiled, but does not work). 
