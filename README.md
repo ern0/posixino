@@ -82,7 +82,7 @@ so you will compile your sketch with Posixino as a single program.
 ### Coverage ###
 
 Check `test/` folder, there are the official example scketches
-which will work on your Linux  Posixino.
+which will work on your Unix system.
 
 The library is in early stage:
 
@@ -92,3 +92,5 @@ The library is in early stage:
 
 Method stubs created for `WebClient` 
 (it will be compiled, but does not work). 
+
+Posixino is only tested on Linux yet.
