@@ -1,13 +1,28 @@
 Posixino
 ========
 
-### What ###
+### About ###
 
-Implementation of some Arduino libraries 
-for POSIX systems (Linux, BSD, Mac OS X).
+Posixino is a framework for 
+POSIX systems (Linux, BSD, Mac OS X),
+which makes possible to compile and run
+Arduino sketches on desktop computers.
 
-Check `test/` folder, these are the official example scketches
-which will work with Posixino.
+The most important Arduino libraries are 
+reimplemented for Unix systems,
+check library and function list below 
+for the complete list. 
+The main focus is to implement network-related
+libraries (web client, web server),
+and essentials (digital inputs and outputs, LCD).
+
+The li
+
+
+
+
+Check `test/` folder, there are the official example scketches
+which will work on your Linux  Posixino.
 
 ### Why ###
 
@@ -73,8 +88,7 @@ LCD|2               |
 
 ### Plans ###
 
-The main focus is to implement network-related
-libraries (web client, web server).
+
 
 One day in the future, 
 I will split these big files one-class-per-pair-of-files fashion,
