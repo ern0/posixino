@@ -12,11 +12,12 @@
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 // if you don't want to use DNS (and reduce your sketch size)
 // use the numeric IP instead of the name for the server:
-//IPAddress server(74,125,232,128);  // numeric IP for Google (no DNS)
-char server[] = "www.google.com";    // name address for Google (using DNS)
+
+IPAddress server(74,125,232,128);  // numeric IP for Google (no DNS)
+///char server[] = "www.google.com";    // name address for Google (using DNS)
 
 // Set the static IP address to use if the DHCP fails to assign
-IPAddress ip(192,168,0,177);
+///IPAddress ip(192,168,0,177);
 
 // Initialize the Ethernet client library
 // with the IP address and port of the server
@@ -35,7 +36,7 @@ void setup() {
     Serial.println("Failed to configure Ethernet using DHCP");
     // no point in carrying on, so do nothing forevermore:
     // try to congifure using IP address instead of DHCP:
-    Ethernet.begin(mac, ip);
+    ///Ethernet.begin(mac, ip);
   }
   // give the Ethernet shield a second to initialize:
   delay(1000);

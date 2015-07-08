@@ -213,69 +213,6 @@
 	} // println(char*)
 	
 
-	EthernetClass Ethernet;
-	
-	
-	bool EthernetClass::begin(byte mac[6]) {
-		// this method is officially left blank		
-	} // begin()
-
-
-	bool EthernetClass::begin(byte mac[6],IPAddress& ip) {
-		// this method is officially left blank		
-	} // begin()
-	
-
-	IPAddress::IPAddress(int pa,int pb,int pc,int pd) {
-		a = pa;
-		b = pb;
-		c = pc;
-		d = pd;
-	} // IPAddress() ctor
-
-
-	bool EthernetClient::connect(const char* host,int port) {
-	
-		/// TODO
-		
-		return false;
-	} // connect()
-	
-
-	void EthernetClient::println() {
-		println("");
-	} // println()
-
-	
-	void EthernetClient::println(const char* str) {
-		/// TODO
-	} // println(char*)
-
-
-	bool EthernetClient::connected() {
-		/// TODO
-	} // connected()
-	
-	
-	bool EthernetClient::available() {
-		/// TODO
-	} // available()
-	
-	
-	char EthernetClient::read() {
-		/// TODO
-		
-		return 'x';
-	} // read()
-	
-	
-	void EthernetClient::stop() {
-	
-		/// TODO
-		
-	} // stop()
-
-
 	LiquidCrystal::LiquidCrystal(int p1,int p2,int p3,int p4,int p5,int p6) {
 		// this method is officially left blank		
 	} // LiquidCrystalClass() ctor
@@ -373,3 +310,122 @@
 		print(str);
 		
 	} // print()
+	
+
+	EthernetClass Ethernet;
+	
+	
+	bool EthernetClass::begin(byte mac[6]) {		
+		return 1;
+	} // begin()
+
+
+	bool EthernetClass::begin(byte mac[6],IPAddress& ip) {
+		// this method is officially left blank		
+	} // begin()
+	
+
+	IPAddress::IPAddress(unsigned char pa,unsigned char pb,unsigned char pc,unsigned char pd) {
+		sprintf(address,"%d.%d.%d.%d",pa,pb,pc,pd);
+	} // IPAddress() ctor
+	
+	
+	char* IPAddress::getAddress() {
+		return address;
+	} // getAddress()
+
+
+	EthernetClient::EthernetClient() {
+		fd = -1;
+	} // EthernetClient() ctor
+	
+
+	bool EthernetClient::connect(const char* host,int port) {
+		return false;
+	}
+	
+	
+	bool EthernetClient::connect(IPAddress& host,int port) {
+
+		fd = socket(AF_INET,SOCK_STREAM,0);
+		if (fd == -1) return false;
+
+		memset(&servaddr,0,sizeof(servaddr));
+		servaddr.sin_family = AF_INET;
+		servaddr.sin_addr.s_addr = inet_addr(host.getAddress());
+		servaddr.sin_port = htons(port);
+
+		int res = ::connect(fd,(struct sockaddr*)&servaddr,sizeof(servaddr));	
+		
+		return ( res != -1 );
+	} // connect()
+	
+
+	void EthernetClient::println() {
+		println("");
+	} // println()
+
+	
+	void EthernetClient::println(const char* str) {
+		
+		int len = 1 + strlen(str);
+		char* data = (char*)malloc(len);
+
+		strcpy(data,str);
+		data[len - 1] = '\n';
+		
+		int x = send(fd,data,len,MSG_NOSIGNAL);
+		if (x == -1) {
+			if (errno == EPIPE) return;
+			if (errno == ECONNRESET);
+			stop();
+			return;
+		}
+
+		free(data);
+		
+	} // println(char*)
+
+
+	bool EthernetClient::connected() {
+		return ( fd != -1 );
+	} // connected()
+	
+	
+	bool EthernetClient::available() {
+		char data[4096];
+		
+		int x = recv(fd,data,4096,MSG_DONTWAIT | MSG_PEEK);
+
+		if (x == -1) {
+			if (errno == EAGAIN) return false;
+			if (errno == ECONNRESET) return false;
+			stop();
+			return 0;
+		}
+
+		return x;	
+	} // available()
+	
+	
+	char EthernetClient::read() {
+	
+		char data[1];	
+		int x = recv(fd,data,1,0);
+
+		if (x != 1) {
+			stop();
+			return '?';
+		}
+		
+		char r = data[0];
+		return r;
+	} // read()
+	
+	
+	void EthernetClient::stop() {	
+		close(fd);
+		fd = -1;		
+	} // stop()
+
+

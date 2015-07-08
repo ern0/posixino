@@ -9,7 +9,11 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <string.h>
+# include <errno.h>
 # include <sys/time.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
 
 
 // Unix entry point
@@ -90,44 +94,6 @@ class SerialClass {
 }; // SerialClass
 
 
-class IPAddress {
-
-	private:
-		int a;
-		int b;
-		int c;
-		int d;
-
-	public:
-		IPAddress(int pa,int pb,int pc,int pd);
-		
-		
-}; // class IPAddress
-
-
-class EthernetClient {
-
-	public:
-		bool connect(const char* host,int port);
-		void println();
-		void println(const char* str);
-		bool connected();
-		bool available();
-		char read();
-		void stop();
-
-}; // class EthernetClient
-
-
-class EthernetClass {
-
-	public:
-		bool begin(byte mac[6]);
-		bool begin(byte mac[6],IPAddress& ip);
-	
-}; // class EthernetClass
-
-
 class LiquidCrystal {
 
 	private:
@@ -151,5 +117,51 @@ class LiquidCrystal {
 		void print(int v);
 
 }; // class LiquidCrystal
+
+
+class IPAddress;
+
+class EthernetClass {
+
+	public:
+		bool begin(byte mac[6]);
+		bool begin(byte mac[6],IPAddress& ip);
+	
+}; // class EthernetClass
+
+
+class IPAddress {
+
+	private:
+		char address[20];
+
+	public:
+		char* getAddress();
+
+	public:
+		IPAddress(unsigned char pa,unsigned char pb,unsigned char pc,unsigned char pd);
+		
+		
+}; // class IPAddress
+
+
+class EthernetClient {
+
+	private:
+		int fd;
+		struct sockaddr_in servaddr;
+	public:
+		EthernetClient();
+		bool connect(const char* host,int port);
+		bool connect(IPAddress& host,int port);
+		void println();
+		void println(const char* str);
+		bool connected();
+		bool available();
+		char read();
+		void stop();
+
+}; // class EthernetClient
+
 
 # endif
