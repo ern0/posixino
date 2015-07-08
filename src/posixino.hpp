@@ -133,13 +133,13 @@ class EthernetClass {
 class IPAddress {
 
 	private:
-		char address[20];
+		char address[80];
 
 	public:
 		char* getAddress();
 
 	public:
-		//IPAddress(
+		IPAddress(char* host);
 		IPAddress(unsigned char pa,unsigned char pb,unsigned char pc,unsigned char pd);
 		
 		

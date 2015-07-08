@@ -170,7 +170,7 @@
 
 	void SerialClass::printChar(const char chr) {
 	
-		if (posx == 0) printf("SER: ");
+		if (posx == 0) printf("SER|");
 		
 		printf("%c",chr);
 		
@@ -327,7 +327,12 @@
 
 	IPAddress::IPAddress(unsigned char pa,unsigned char pb,unsigned char pc,unsigned char pd) {
 		sprintf(address,"%d.%d.%d.%d",pa,pb,pc,pd);
-	} // IPAddress() ctor
+	} // IPAddress(unsigned char,unsigned char,unsigned char,unsigned char) ctor
+	
+	
+	IPAddress::IPAddress(char* host) {
+		strncpy(address,host,80);
+	} // IPAddress(char*) ctor
 	
 	
 	char* IPAddress::getAddress() {
@@ -340,7 +345,6 @@
 	} // EthernetClient() ctor
 	
 
-/*
 	bool EthernetClient::connect(const char* host,int port) {
 
 		struct hostent* he = gethostbyname(host);
@@ -352,7 +356,7 @@
 		IPAddress a(inet_ntoa(*al[0]));
 		return connect(a,port);
 	} // connect(char*,...)
-*/	
+	
 	
 	bool EthernetClient::connect(IPAddress& host,int port) {
 
@@ -402,18 +406,18 @@
 	
 	
 	bool EthernetClient::available() {
-		char data[4096];
-		
-		int x = recv(fd,data,4096,MSG_DONTWAIT | MSG_PEEK);
+		char data[1];
+
+		int x = recv(fd,data,1,MSG_DONTWAIT | MSG_PEEK);		
+		if (x == 1) return true;
 
 		if (x == -1) {
 			if (errno == EAGAIN) return false;
 			if (errno == ECONNRESET) return false;
-			stop();
-			return 0;
 		}
-
-		return x;	
+		
+		stop();
+		return false;
 	} // available()
 	
 	
