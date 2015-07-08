@@ -14,7 +14,7 @@
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
-
+# include <netdb.h>
 
 // Unix entry point
 int main();
@@ -139,6 +139,7 @@ class IPAddress {
 		char* getAddress();
 
 	public:
+		//IPAddress(
 		IPAddress(unsigned char pa,unsigned char pb,unsigned char pc,unsigned char pd);
 		
 		

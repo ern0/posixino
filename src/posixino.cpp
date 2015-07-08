@@ -340,10 +340,19 @@
 	} // EthernetClient() ctor
 	
 
+/*
 	bool EthernetClient::connect(const char* host,int port) {
-		return false;
-	}
-	
+
+		struct hostent* he = gethostbyname(host);
+		if (he == NULL) return false;
+
+		struct in_addr** al;
+		al = (struct in_addr**) he->h_addr_list;		
+		
+		IPAddress a(inet_ntoa(*al[0]));
+		return connect(a,port);
+	} // connect(char*,...)
+*/	
 	
 	bool EthernetClient::connect(IPAddress& host,int port) {
 
@@ -358,7 +367,7 @@
 		int res = ::connect(fd,(struct sockaddr*)&servaddr,sizeof(servaddr));	
 		
 		return ( res != -1 );
-	} // connect()
+	} // connect(IPAddress&,...)
 	
 
 	void EthernetClient::println() {
@@ -427,5 +436,3 @@
 		close(fd);
 		fd = -1;		
 	} // stop()
-
-
