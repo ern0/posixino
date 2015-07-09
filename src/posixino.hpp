@@ -15,9 +15,13 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <netdb.h>
+# include <signal.h>
+# include <termios.h>
 
-// Unix entry point
+// Unix functions
 int main();
+void quit(int sig);
+void cleanup();
 
 // Arduino entry points
 void setup();
@@ -39,6 +43,11 @@ int millis();
 
 typedef unsigned char byte;
 
+# define HEX 16
+# define DEC 10
+# define OCT 8
+# define BIN 2
+
 
 // Implementation
 
@@ -51,11 +60,14 @@ class Posixino {
 	friend LiquidCrystal;
 
 	private:
+    struct termios orig_term_attr;
+    struct termios new_term_attr;	
 		int pinModeList[NO_OF_DIGI_OUTS];
 		int pinValueList[NO_OF_DIGI_OUTS];
 		bool isDigitalOutsUsed;
 		bool isDigitalOutsDisplayed;
 		unsigned long long startMillis;
+		int key;
 
 	protected:
 		void outOfMem();
@@ -64,9 +76,13 @@ class Posixino {
 		void renderDigitalOuts();
 		void eraseDigitalOuts();
 		void restoreDigitalOuts();
+	public:
+		bool isKeyAvailable();
+		int readKey();
 
 	public:
 		void init();
+		void cleanup();
 		void delay(int ms);
 		int millis();
 		void pinMode(int no,int mode);
@@ -82,14 +98,24 @@ class SerialClass {
 		int posx;
 	protected:
 		void checkInitialization();
-		void printChar(const char chr);
+		void printAtom(const char chr);
+		void printChar(const char chr,bool lf);
+		void printString(const char* str,bool lf);
+		void printNum(int val,int radix,bool lf);
 	public:
 		SerialClass();
 		void begin(int speed);
+		void print(int val);
+		void println(int val);
+		void print(int val,int radix);
+		void println(int val,int radix);
 		void print(const char chr);
 		void print(const char* str);
 		void println();
 		void println(const char* str);
+		void write(char chr);
+		int available();
+		char read();
 
 }; // SerialClass
 
@@ -106,14 +132,18 @@ class LiquidCrystal {
 		unsigned char* screenBuffer;
 		int screenSize;
 		unsigned char* lastScreen;
+		bool firstClear;
 	protected:
 		void checkInitialization();
+		void writeChar(char chr);
 		bool isChanged();
 		void renderScreen();
 	public:
 		LiquidCrystal(int p1,int p2,int p3,int p4,int p5, int p6);
 		void begin(int w,int h);
+		void clear();
 		void setCursor(int x,int y);
+		void write(char chr);
 		void print(const char* str);
 		void print(int v);
 		void scrollDisplayLeft();

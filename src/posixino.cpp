@@ -5,11 +5,30 @@
 
 
 	int main() {
+	
+		atexit(cleanup);
+		signal(SIGINT,quit);
+		
 		posixino.init();		
+		
 		setup();
 		while(true) loop();		
 	} // main()
+	
+	
+	void quit(int sig) {
+	
+		cleanup();
+		fprintf(stdout,"READY. \n");
+		exit(0);
+		
+	} // quit()
 
+
+	void cleanup() {
+		posixino.cleanup();
+	} // cleanup()
+	
 
 	void delay(int ms) { posixino.delay(ms); }
 	int millis() { return posixino.millis(); }
@@ -29,7 +48,20 @@
 		
 		startMillis = millisSinceEpoch();
 		
+		key = -1;
+    tcgetattr(fileno(stdin),&orig_term_attr);
+    memcpy(&new_term_attr,&orig_term_attr,sizeof(struct termios));
+    new_term_attr.c_lflag &= ~(ECHO|ICANON);
+    new_term_attr.c_cc[VTIME] = 0;
+    new_term_attr.c_cc[VMIN] = 0;
+    tcsetattr(fileno(stdin),TCSANOW,&new_term_attr);
+		
 	} // init()
+
+
+	void Posixino::cleanup() {
+    tcsetattr(fileno(stdin),TCSANOW,&orig_term_attr);
+	} // cleanup()
 
 
 	void Posixino::outOfMem() {
@@ -138,6 +170,24 @@
 	} // restoreDigitalOuts()
 	
 	
+	bool Posixino::isKeyAvailable() {
+	
+		if (key != -1) return true;
+    key = fgetc(stdin);
+    
+		return ( key != -1 );
+	} // isKeyAvailable()
+	
+	
+	int Posixino::readKey() {
+		
+		int k = key;
+		key = -1;
+
+		return k;	
+	} // readKey
+
+	
 	SerialClass Serial;
 	
 	
@@ -168,7 +218,7 @@
 	} // begin()
 	
 
-	void SerialClass::printChar(const char chr) {
+	void SerialClass::printAtom(const char chr) {
 	
 		if (posx == 0) printf("SER|");
 		
@@ -183,34 +233,112 @@
 	} // print(char)
 
 
-	void SerialClass::print(const char chr) {
+	void SerialClass::printChar(const char chr,bool lf) {
+	
 		checkInitialization();
 		posixino.eraseDigitalOuts();
-		printChar(chr);
+
+		printAtom(chr);
+		if (lf) printAtom('\n');
+		
+		posixino.restoreDigitalOuts();
+		
+	} // printChar()
+	
+	
+	void SerialClass::printString(const char* str,bool lf) {
+
+		checkInitialization();
+		posixino.restoreDigitalOuts();
+
+		int len = strlen(str);
+		for (int n = 0; n < len; n++) printAtom(str[n]);
+		if (lf) printAtom('\n');
+
+		posixino.restoreDigitalOuts();
+	
+	} // printString()
+
+
+	void SerialClass::printNum(int val,int radix,bool lf) {
+		char str[20];
+		
+		switch (radix) {
+			case BIN: {
+				str[0] = 0;
+				for (int z = 128; z > 0; z >>= 1) {
+					strcat(str,( ((val & z) == z) ? "1" : "0" ));
+				}
+			break; }
+			case OCT: {
+				sprintf(str,"%o",val);
+			break; }
+			case HEX: {
+				sprintf(str,"%X",val);
+			break; }
+			default: {
+				sprintf(str,"%d",val);
+			}
+		} // switch
+
+		printString(str,lf);
+		
 	} // print()
+
+
+	void SerialClass::print(const char chr) {
+		printChar(chr,false);
+	} // print(char)
 
 
 	void SerialClass::print(const char* str) {
-		checkInitialization();
-		posixino.eraseDigitalOuts();
-		int len = strlen(str);
-		for (int n = 0; n < len; n++) printChar(str[n]);
-	} // print()
+		printString(str,false);
+	} // print(char*)
 
 
 	void SerialClass::println() {
-		checkInitialization();
-		posixino.eraseDigitalOuts();
-		printChar('\n');
+		printChar('\n',false);
 	} // println()
 
 
 	void SerialClass::println(const char* str) {
-		checkInitialization();
-		posixino.eraseDigitalOuts();
-		print(str);
-		printChar('\n');
+		printString(str,true);
 	} // println(char*)
+	
+	
+	void SerialClass::print(int val) {
+		printNum(val,DEC,false);
+	} // print(int)
+
+
+	void SerialClass::println(int val) {
+		printNum(val,DEC,true);
+	} // println(int)
+	
+
+	void SerialClass::print(int val,int radix) {
+		printNum(val,radix,false);
+	} // print(int,int)
+
+	
+	void SerialClass::println(int val,int radix) {
+		printNum(val,radix,true);
+	} // println(int,int)
+
+
+	void SerialClass::write(char chr) {
+		printChar(chr,false);
+	} // write()
+	
+	
+	int SerialClass::available() {
+		return ( posixino.isKeyAvailable() ? 1 : 0 );
+	} // available()
+	
+	
+	char SerialClass::read() {
+		return posixino.readKey();
+	} // read()
 	
 
 	LiquidCrystal::LiquidCrystal(int p1,int p2,int p3,int p4,int p5,int p6) {
@@ -265,10 +393,18 @@
 	
 	} // renderScreen()
 	
+
+	void LiquidCrystal::writeChar(char chr) {
+		screenBuffer[(y * 3 * w) + w + x] = chr;
+		x++;		
+	} // writeChar()
+	
+	
 	
 	void LiquidCrystal::begin(int pw,int ph) {	
 		
 		isInitialized = true;
+		firstClear = true;
 		
 		w = pw;
 		h = ph;
@@ -277,16 +413,26 @@
 		bufferSize = 3 * screenSize;
 		screenBuffer = (unsigned char*)malloc(bufferSize);
 		if (screenBuffer == NULL) posixino.outOfMem();
-		memset(screenBuffer,0x20,bufferSize);
 		lastScreen = (unsigned char*)malloc(screenSize);
 		if (lastScreen == NULL) posixino.outOfMem();
-		memset(lastScreen,0x20,screenSize);		
-		
-		x = 0;
-		y = 0;		
+
+		clear();
 		
 	} // begin()
 
+	
+	void LiquidCrystal::clear() {
+
+		memset(screenBuffer,0x20,bufferSize);
+		memset(lastScreen,0x20,screenSize);					
+		x = 0;
+		y = 0;		
+	
+		if (isChanged() || firstClear) renderScreen();
+		firstClear = false;
+		
+	} // clear()
+	
 
 	void LiquidCrystal::setCursor(int px,int py) {
 		x = px;
@@ -294,13 +440,16 @@
 	} // setCursor()
 	
 	
+	void LiquidCrystal::write(char chr) {
+		writeChar(chr);
+		if (isChanged()) renderScreen();		
+	} // write()
+	
+	
 	void LiquidCrystal::print(const char* str) {
 	
 		int len = strlen(str);
-		for (int n = 0; n < len; n++) {
-			screenBuffer[(y * 3 * w) + w + x] = str[n];
-			x++;
-		}
+		for (int n = 0; n < len; n++) writeChar(str[n]);
 
 		if (isChanged()) renderScreen();
 		
@@ -309,7 +458,7 @@
 	
 	void LiquidCrystal::print(int v) {
 	
-		char str[80];
+		char str[20];
 		sprintf(str,"%d",v);
 		print(str);
 		

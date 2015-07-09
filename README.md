@@ -14,12 +14,17 @@ without modifications.
 
 The main focus is to implement network-related
 functions (web client, web server),
-and basics (digital inputs and outputs, LCD).
-Check "coverage" section. 
+and basics (digital inputs and outputs, serial, LCD).
+Check "coverage" section for actual state. 
 
 Posixino is designed to produce CLI programs;
 serial output, digital out states, LCD display content etc.
 will appear on the console.
+
+There is no complex embedded software without interrupts,
+so timer interrupts will be emulated,
+at least an interrupt routine will be called
+at the specified interval.
 
 ### Benefits ###
 
@@ -33,11 +38,13 @@ sketches for a non-embedded system?
 - More comfortable
 
 Of course, I don't want you to throw your device away,
-embedded programming is fun and joy. 
+embedded programming is not a fun without any device.
 
 Posixino is trying to mimic the behavior of the original libraries,
 but there is a good chance that something will work different way,
-so testing your program on real hardware is important.
+so testing your program on real hardware is important. 
+If you have no device, but you need exact simulation of it,
+using emulator is a better choice.
 
 ### Demo (kinda) ###
 
@@ -82,20 +89,23 @@ so you will compile your sketch with Posixino as a single program.
 ### Coverage ###
 
 Posixino is in early stage,
-but digital out, web client and LCD 
-functions are in usable state.
+but most of 
+digital out, web client and LCD 
+functions are working.
 
 As I'm working on the framework,
-I'm adding factory examples one by one
-to `test/` folder,
-then implementing library functions they use.
+I will add factory examples one by one
+to the `test/` folder,
+then implement library functions they're using.
 
 Here is the actual list of working examples:
 
-- `Basics/Blink`
-- `Ethernet/WebClient`
-- `LiquidCrystal/HelloWorld`
-- `LiquidCrystal/Scroll`
+- `Communication/ASCIITable` (serial print)
+- `Basics/Blink` (digital out)
+- `Ethernet/WebClient` (HTTP request)
+- `LiquidCrystal/HelloWorld` (LCD test)
+- `LiquidCrystal/Scroll` (LCD scroll)
+- `LiquidCrystal/SerialDisplay` (serial input)
 
 Posixino is now tested on Linux only,
 but it will be tested on Mac OS X before major releases.

@@ -1,3 +1,5 @@
 #bin/lcdhello
 #bin/webclient
-bin/scroll
+#bin/scroll
+#bin/asciitable
+bin/serialdisplay
