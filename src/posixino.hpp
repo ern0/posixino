@@ -102,9 +102,10 @@ class LiquidCrystal {
 		int h;
 		int x;
 		int y;
+		int bufferSize;
+		unsigned char* screenBuffer;
 		int screenSize;
 		unsigned char* lastScreen;
-		unsigned char* actualScreen;
 	protected:
 		void checkInitialization();
 		bool isChanged();
@@ -115,6 +116,8 @@ class LiquidCrystal {
 		void setCursor(int x,int y);
 		void print(const char* str);
 		void print(int v);
+		void scrollDisplayLeft();
+		void scrollDisplayRight();
 
 }; // class LiquidCrystal
 

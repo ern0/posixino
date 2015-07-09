@@ -117,7 +117,7 @@
 	
 		if (!isDigitalOutsUsed) return;
 
-		fprintf(stderr,"\rDIG: ");
+		fprintf(stderr,"\rDIG|");
 		for (int n = 0; n < NO_OF_DIGI_OUTS; n++) {
 			fprintf(stderr,"%c",( pinValueList[n] == HIGH ? 'X' : '.' ));
 		}
@@ -230,10 +230,12 @@
 	
 	
 	bool LiquidCrystal::isChanged() {
-	
-		for (int n = 0; n < screenSize; n++) {
-			if (actualScreen[n] == lastScreen[n]) continue;
-			return true;
+
+		for (int row = 0; row < h; row++) {
+			for (int col = 0; col < w; col++) {
+				if (screenBuffer[(row * 3 * w) + w + col] == lastScreen[row * w + col]) continue;
+				return true;
+			}
 		}
 		
 		return false;
@@ -248,17 +250,17 @@
 		for (int n = 0; n < w; n++) printf("_");
 		printf("\n");
 		
-		int posx = 0;
-		for (int n = 0; n < screenSize; n++) {
-			if (posx == 0) printf("LCD|");
-			printf("%c",actualScreen[n]);
-			lastScreen[n] = actualScreen[n];
-			posx++;
-			if (posx < w) continue;
-			posx = 0;
+		for (int row = 0; row < h; row++) {
+			printf("LCD|");
+			for (int col = 0; col < w; col++) {
+				int c = screenBuffer[(row * 3 * w + w) + col];
+				if (c < 0x20) c = '?';				
+				printf("%c",c);
+				lastScreen[row * w + col] = c;
+			}
 			printf("|\n");
-		} // for screen		
-	
+		}
+		
 		posixino.renderDigitalOuts();
 	
 	} // renderScreen()
@@ -271,10 +273,11 @@
 		w = pw;
 		h = ph;
 		
-		screenSize = w * h;
-		actualScreen = (unsigned char*)malloc(screenSize);
-		if (actualScreen == NULL) posixino.outOfMem();
-		memset(actualScreen,0x20,screenSize);
+		int screenSize = w * h;
+		bufferSize = 3 * screenSize;
+		screenBuffer = (unsigned char*)malloc(bufferSize);
+		if (screenBuffer == NULL) posixino.outOfMem();
+		memset(screenBuffer,0x20,bufferSize);
 		lastScreen = (unsigned char*)malloc(screenSize);
 		if (lastScreen == NULL) posixino.outOfMem();
 		memset(lastScreen,0x20,screenSize);		
@@ -294,9 +297,10 @@
 	void LiquidCrystal::print(const char* str) {
 	
 		int len = strlen(str);
-		int pos = y * w + x;
-		for (int n = 0; n < len; n++) actualScreen[pos++] = str[n];
-		x += len;
+		for (int n = 0; n < len; n++) {
+			screenBuffer[(y * 3 * w) + w + x] = str[n];
+			x++;
+		}
 
 		if (isChanged()) renderScreen();
 		
@@ -310,6 +314,34 @@
 		print(str);
 		
 	} // print()
+	
+	
+	void LiquidCrystal::scrollDisplayLeft() {
+	
+		for (int n = 1; n < bufferSize; n++) {
+			screenBuffer[n - 1] = screenBuffer[n];
+		} 		
+		for (int row = 0; row < h; row++) {
+			screenBuffer[row * 3 * w] = ' ';
+		}
+		
+		if (isChanged()) renderScreen();
+	
+	} // scrollDisplayLeft()
+
+
+	void LiquidCrystal::scrollDisplayRight() {
+	
+		for (int n = bufferSize; n > 0; --n) {
+			screenBuffer[n] = screenBuffer[n - 1];
+		} 
+		for (int row = 0; row < h; row++) {
+			screenBuffer[(row * 3 * w) + (3 * w) - 1] = ' ';
+		}
+		
+		if (isChanged()) renderScreen();
+	
+	} // scrollDisplayLeft()
 	
 
 	EthernetClass Ethernet;

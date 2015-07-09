@@ -88,7 +88,7 @@ The Posixino framework is in early stage:
 
 - `Serial.print` works.
 - `digitalWrite` works, output states are displayed on console.
-- `LiquidCrystal` works, 
+- `LiquidCrystal` partially works, scroll implemented,
 LCD display content is rendered on the screen upon each change,
 - `EthernetClient` works, not tested.
 
