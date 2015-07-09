@@ -15,7 +15,7 @@ without modifications.
 The main focus is to implement network-related
 functions (web client, web server),
 and basics (digital inputs and outputs, LCD).
-Check library and function list for coverage. 
+Check "coverage" section. 
 
 Posixino is designed to produce CLI programs;
 serial output, digital out states, LCD display content etc.
@@ -81,16 +81,21 @@ so you will compile your sketch with Posixino as a single program.
 
 ### Coverage ###
 
-Check `test/` folder, there are the official example scketches
-which will work on your Unix system.
+Posixino is in early stage,
+but digital out, web client and LCD 
+functions are in usable state.
 
-The Posixino framework is in early stage:
+As I'm working on the framework,
+I'm adding factory examples one by one
+to `test/` folder,
+then implementing library functions they use.
 
-- `Serial.print` works.
-- `digitalWrite` works, output states are displayed on console.
-- `LiquidCrystal` partially works, scroll implemented,
-LCD display content is rendered on the screen upon each change,
-- `EthernetClient` works, not tested.
+Here is the actual list of working examples:
+
+- `Basics/Blink`
+- `Ethernet/WebClient`
+- `LiquidCrystal/HelloWorld`
+- `LiquidCrystal/Scroll`
 
 Posixino is now tested on Linux only,
 but it will be tested on Mac OS X before major releases.
