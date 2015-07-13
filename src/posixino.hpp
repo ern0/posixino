@@ -164,6 +164,8 @@ class IPAddress;
 
 class EthernetClass {
 
+	private:
+		char localAddress[INET_ADDRSTRLEN];
 	public:
 		bool begin(byte mac[6]);
 		bool begin(byte mac[6],IPAddress& ip);
@@ -208,6 +210,7 @@ class EthernetClient {
 		char read();
 		void stop();
 		operator bool() const;
+		void hello();
 
 }; // class EthernetClient
 

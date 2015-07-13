@@ -103,6 +103,7 @@ Here is the actual list of working examples:
 - `Communication/ASCIITable` (serial print)
 - `Basics/Blink` (digital out)
 - `Ethernet/WebClient` (HTTP request)
+- `Ethernet/WebServer` (HTTP listener) - STUB ONLY
 - `LiquidCrystal/HelloWorld` (LCD test)
 - `LiquidCrystal/Scroll` (LCD scroll)
 - `LiquidCrystal/SerialDisplay` (serial input)

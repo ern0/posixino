@@ -511,7 +511,8 @@
 	
 	
 	bool EthernetClass::begin(byte mac[6]) {		
-		return 1;
+		localAddress[0] = '\0';
+		return true;
 	} // begin()
 
 
@@ -521,36 +522,33 @@
 	
 
 	char* EthernetClass::localIP() {
-		static char res[40];
-		strcpy(res,"(n.a.)");
+		strcpy(localAddress,"(n.a.)");
 
 		struct ifaddrs* ifAddrStruct = NULL;
 		struct ifaddrs* ifa = NULL;
     void* tmpAddrPtr = NULL;
 
     getifaddrs(&ifAddrStruct);
-		for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next) {
-		
-			if (ifa ->ifa_addr->sa_family == AF_INET) {
-				char mask[INET_ADDRSTRLEN];
-				void* mask_ptr = &((struct sockaddr_in*) ifa->ifa_netmask)->sin_addr;
-				inet_ntop(AF_INET,mask_ptr,mask,INET_ADDRSTRLEN);
-				if (strcmp(mask,"255.0.0.0") == 0) continue;
-				
-				//printf("mask:%s\n", mask);
-				tmpAddrPtr = &((struct sockaddr_in*)ifa->ifa_addr)->sin_addr;
-				char addressBuffer[INET_ADDRSTRLEN];
-				inet_ntop(AF_INET, tmpAddrPtr,addressBuffer,INET_ADDRSTRLEN);
-				//printf("%s IP Address %s\n",ifa->ifa_name,addressBuffer);
-				strcpy(res,addressBuffer);
-				break;
-			} // if inet4
+		for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next) {		
+			if (ifa ->ifa_addr->sa_family != AF_INET) continue;
 			
+			char mask[INET_ADDRSTRLEN];
+			void* mask_ptr = &((struct sockaddr_in*) ifa->ifa_netmask)->sin_addr;
+			inet_ntop(AF_INET,mask_ptr,mask,INET_ADDRSTRLEN);
+			if (strcmp(mask,"255.0.0.0") == 0) continue;
+				
+			//printf("mask:%s\n", mask);
+			tmpAddrPtr = &((struct sockaddr_in*)ifa->ifa_addr)->sin_addr;
+			char addressBuffer[INET_ADDRSTRLEN];
+			inet_ntop(AF_INET,tmpAddrPtr,localAddress,INET_ADDRSTRLEN);
+			//printf("%s IP Address %s\n",ifa->ifa_name,addressBuffer);
+			break;
+				
 		} // foreach
 	    
 		if (ifAddrStruct != NULL) freeifaddrs(ifAddrStruct);	
 		
-		return res;
+		return localAddress;
 	} // localIP()
 
 
@@ -693,9 +691,13 @@
 	
 		/// TODO
 		
-		return false;
+		return true;
 	} // operator bool
 	
+	
+	void EthernetClient::hello() {
+		printf("hellog\n");
+	}
 	
 	
 	EthernetServer::EthernetServer(int p) {
@@ -712,6 +714,8 @@
 
 
 	EthernetClient EthernetServer::available() {
+	
+		/// TODO
 	
 		EthernetClient ec;
 		return ec;

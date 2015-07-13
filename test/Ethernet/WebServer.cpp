@@ -55,6 +55,8 @@ void setup() {
 void loop() {
   // listen for incoming clients
   EthernetClient client = server.available();
+printf("-\n");
+client.hello();
   if (client) {
     Serial.println("new client");
     // an http request ends with a blank line
