@@ -4,4 +4,5 @@ clear
 #g++ test/LiquidCrystal/Scroll.cpp -o bin/scroll
 #g++ test/Ethernet/WebClient.cpp -o bin/webclient
 #g++ test/Communication/ASCIITable.cpp -o bin/asciitable
-g++ test/LiquidCrystal/SerialDisplay.cpp -o bin/serialdisplay
+#g++ test/LiquidCrystal/SerialDisplay.cpp -o bin/serialdisplay
+g++ test/Ethernet/WebServer.cpp -o bin/webserver

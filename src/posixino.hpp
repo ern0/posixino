@@ -10,13 +10,16 @@
 # include <unistd.h>
 # include <string.h>
 # include <errno.h>
+# include <sys/types.h>
 # include <sys/time.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
+# include <ifaddrs.h>
 # include <netdb.h>
 # include <signal.h>
 # include <termios.h>
+
 
 // Unix functions
 int main();
@@ -29,9 +32,11 @@ void loop();
 
 // Arduino global functions
 void delay(int ms);
-void pinMode(int no,int mode);
-void digitalWrite(int no,int value);
+void pinMode(int pin,int mode);
+void digitalWrite(int pin,int value);
+int analogRead(int pin);
 int millis();
+
 
 
 // Arduino types and constants
@@ -42,6 +47,7 @@ int millis();
 # define HIGH 1
 
 typedef unsigned char byte;
+typedef bool boolean;
 
 # define HEX 16
 # define DEC 10
@@ -73,6 +79,7 @@ class Posixino {
 		void outOfMem();
 		unsigned long long millisSinceEpoch();
 		void printErrorPrefix();
+		void printPrefix(const char* str);
 		void renderDigitalOuts();
 		void eraseDigitalOuts();
 		void restoreDigitalOuts();
@@ -86,7 +93,8 @@ class Posixino {
 		void delay(int ms);
 		int millis();
 		void pinMode(int no,int mode);
-		void digitalWrite(int no,int value);		
+		void digitalWrite(int pin,int value);		
+		int analogRead(int pin);
 
 }; // Posixino
 
@@ -159,6 +167,7 @@ class EthernetClass {
 	public:
 		bool begin(byte mac[6]);
 		bool begin(byte mac[6],IPAddress& ip);
+		char* localIP();
 	
 }; // class EthernetClass
 
@@ -184,18 +193,37 @@ class EthernetClient {
 	private:
 		int fd;
 		struct sockaddr_in servaddr;
+	protected:
+		void printAtom(const char* data,int len);
 	public:
 		EthernetClient();
 		bool connect(const char* host,int port);
 		bool connect(IPAddress& host,int port);
+		void print(int value);
+		void print(const char* str);
 		void println();
 		void println(const char* str);
 		bool connected();
 		bool available();
 		char read();
 		void stop();
+		operator bool() const;
 
 }; // class EthernetClient
+
+
+
+class EthernetServer {
+
+	private:
+		int port;
+
+	public:
+		EthernetServer(int port);
+		void begin();
+		EthernetClient available();
+
+}; // class EthernetServer
 
 
 # endif

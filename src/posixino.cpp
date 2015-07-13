@@ -32,8 +32,9 @@
 
 	void delay(int ms) { posixino.delay(ms); }
 	int millis() { return posixino.millis(); }
-	void pinMode(int no,int mode) { posixino.pinMode(no,mode); }
-	void digitalWrite(int no,int value) { posixino.digitalWrite(no,value); }
+	void pinMode(int pin,int mode) { posixino.pinMode(pin,mode); }
+	void digitalWrite(int pin,int value) { posixino.digitalWrite(pin,value); }
+	int analogRead(int pin) { return posixino.analogRead(pin); }
 
 		
 	void Posixino::init() {
@@ -111,37 +112,50 @@
 	} // pinMode()
 	
 	
-	void Posixino::digitalWrite(int no,int value) {
+	void Posixino::digitalWrite(int pin,int value) {
 
-		if (pinModeList[no] == -1) {
+		if (pinModeList[pin] == -1) {
 			printErrorPrefix();
-			fprintf(stderr,"mode must be set first for pin %d \n",no);
+			fprintf(stderr,"mode must be set first for pin %d \n",pin);
 			exit(1);
 		}
 		
-		if (pinModeList[no] != OUTPUT) {
+		if (pinModeList[pin] != OUTPUT) {
 			printErrorPrefix();
-			fprintf(stderr,"mode must be write for pin %d \n",no);
+			fprintf(stderr,"mode must be write for pin %d \n",pin);
 			exit(1);
 		}
 
 		if ((value != LOW) && (value != HIGH)) {
 			printErrorPrefix();
-			fprintf(stderr,"invalid pin value %d for pin %d \n",value,no);
+			fprintf(stderr,"invalid pin value %d for pin %d \n",value,pin);
 			exit(1);
 		}		
 		
 		isDigitalOutsUsed = true;
-		if (pinValueList[no] == value) return;
-		pinValueList[no] = value;
+		if (pinValueList[pin] == value) return;
+		pinValueList[pin] = value;
 		renderDigitalOuts();
 	
 	} // digitalWrite()
 	
 	
+	int Posixino::analogRead(int pin) {
+	
+		/// TODO or what
+		
+		return 42;	
+	} // analogRead()
+	
+	
 	void Posixino::printErrorPrefix() {
+		printPrefix("error");
+	} // printErrorPrefix()
+	
+	
+	void Posixino::printPrefix(const char* str) {
 		posixino.eraseDigitalOuts();
-		fprintf(stderr,"POSIXINO error: ");
+		fprintf(stderr,"POSIXINO %s: ",str);
 	} // printErrorPrefix()
 	
 	
@@ -506,6 +520,40 @@
 	} // begin()
 	
 
+	char* EthernetClass::localIP() {
+		static char res[40];
+		strcpy(res,"(n.a.)");
+
+		struct ifaddrs* ifAddrStruct = NULL;
+		struct ifaddrs* ifa = NULL;
+    void* tmpAddrPtr = NULL;
+
+    getifaddrs(&ifAddrStruct);
+		for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next) {
+		
+			if (ifa ->ifa_addr->sa_family == AF_INET) {
+				char mask[INET_ADDRSTRLEN];
+				void* mask_ptr = &((struct sockaddr_in*) ifa->ifa_netmask)->sin_addr;
+				inet_ntop(AF_INET,mask_ptr,mask,INET_ADDRSTRLEN);
+				if (strcmp(mask,"255.0.0.0") == 0) continue;
+				
+				//printf("mask:%s\n", mask);
+				tmpAddrPtr = &((struct sockaddr_in*)ifa->ifa_addr)->sin_addr;
+				char addressBuffer[INET_ADDRSTRLEN];
+				inet_ntop(AF_INET, tmpAddrPtr,addressBuffer,INET_ADDRSTRLEN);
+				//printf("%s IP Address %s\n",ifa->ifa_name,addressBuffer);
+				strcpy(res,addressBuffer);
+				break;
+			} // if inet4
+			
+		} // foreach
+	    
+		if (ifAddrStruct != NULL) freeifaddrs(ifAddrStruct);	
+		
+		return res;
+	} // localIP()
+
+
 	IPAddress::IPAddress(unsigned char pa,unsigned char pb,unsigned char pc,unsigned char pd) {
 		sprintf(address,"%d.%d.%d.%d",pa,pb,pc,pd);
 	} // IPAddress(unsigned char,unsigned char,unsigned char,unsigned char) ctor
@@ -555,31 +603,49 @@
 	} // connect(IPAddress&,...)
 	
 
+	void EthernetClient::printAtom(const char* data,int len) {
+	
+		int x = send(fd,data,len,MSG_NOSIGNAL);
+		if (x == -1) {
+			if (errno == EPIPE) return;
+			//if (errno == ECONNRESET) then what. nothing.
+			stop();
+		}
+		
+	} // printAtom()
+
+
+	void EthernetClient::print(int value) {
+		char data[40];
+		sprintf(data,"%d",value);
+		printAtom(data,strlen(data));
+	} // print(int)
+
+
+	void EthernetClient::print(const char* str) {
+		printAtom(str,strlen(str));
+	} // print(const char*)
+	
+
 	void EthernetClient::println() {
-		println("");
-	} // println()
+		printAtom("\n",1);
+	} // println(void)
 
 	
 	void EthernetClient::println(const char* str) {
 		
 		int len = 1 + strlen(str);
 		char* data = (char*)malloc(len);
-
 		strcpy(data,str);
 		data[len - 1] = '\n';
+		data[len] = '\0';
 		
-		int x = send(fd,data,len,MSG_NOSIGNAL);
-		if (x == -1) {
-			if (errno == EPIPE) return;
-			if (errno == ECONNRESET);
-			stop();
-			return;
-		}
-
+		printAtom(data,len);
+		
 		free(data);
 		
 	} // println(char*)
-
+		
 
 	bool EthernetClient::connected() {
 		return ( fd != -1 );
@@ -621,3 +687,32 @@
 		close(fd);
 		fd = -1;		
 	} // stop()
+	
+
+	EthernetClient::operator bool() const {
+	
+		/// TODO
+		
+		return false;
+	} // operator bool
+	
+	
+	
+	EthernetServer::EthernetServer(int p) {
+	
+		port = p;
+		if (port < 1024) port += 8000;
+		
+	} // EthernetServer()
+
+
+	void EthernetServer::begin() {
+	
+	} // begin()
+
+
+	EthernetClient EthernetServer::available() {
+	
+		EthernetClient ec;
+		return ec;
+	} // available()
