@@ -21,6 +21,8 @@
 # include <signal.h>
 # include <termios.h>
 
+# include <string>
+using namespace std;
 
 // Unix functions
 int main();
@@ -34,8 +36,10 @@ void loop();
 // Arduino global functions
 void delay(int ms);
 void pinMode(int pin,int mode);
+int digitalRead(int pin);
 void digitalWrite(int pin,int value);
 int analogRead(int pin);
+void analogWrite(int pin,int value);
 int millis();
 
 
@@ -49,6 +53,7 @@ int millis();
 
 typedef unsigned char byte;
 typedef bool boolean;
+typedef string String;
 
 # define HEX 16
 # define DEC 10
@@ -97,8 +102,10 @@ class Posixino {
 		void delay(int ms);
 		int millis();
 		void pinMode(int no,int mode);
+		int digitalRead(int pin);
 		void digitalWrite(int pin,int value);		
 		int analogRead(int pin);
+		void analogWrite(int pin,int value);		
 
 }; // Posixino
 
@@ -173,6 +180,7 @@ class EthernetClass {
 	public:
 		bool begin(byte mac[6]);
 		bool begin(byte mac[6],IPAddress& ip);
+		bool begin(byte mac[6],byte ip[4]);
 		char* localIP();
 	
 }; // class EthernetClass
@@ -212,8 +220,10 @@ class EthernetClient {
 		bool connect(IPAddress& host,int port);
 		void print(int value);
 		void print(const char* str);
+		void print(String s);
 		void println();
 		void println(const char* str);
+		void println(String s);
 		bool connected();
 		bool available();
 		char read();

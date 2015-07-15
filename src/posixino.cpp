@@ -34,6 +34,8 @@
 	int millis() { return posixino.millis(); }
 	void pinMode(int pin,int mode) { posixino.pinMode(pin,mode); }
 	void digitalWrite(int pin,int value) { posixino.digitalWrite(pin,value); }
+	int digitalRead(int pin) { return posixino.digitalRead(pin); }
+	void analogWrite(int pin,int value) { posixino.analogWrite(pin,value); }
 	int analogRead(int pin) { return posixino.analogRead(pin); }
 
 		
@@ -140,10 +142,20 @@
 	} // digitalWrite()
 	
 	
-	int Posixino::analogRead(int pin) {
-	
+	int Posixino::digitalRead(int pin) {
 		/// TODO or what
-		
+		return 42;	
+	} // digitalRead()
+	
+	
+	
+	void Posixino::analogWrite(int pin,int value) {
+		/// TODO or what
+	} // analogWrite()
+	
+	
+	int Posixino::analogRead(int pin) {
+		/// TODO or what
 		return 42;	
 	} // analogRead()
 	
@@ -525,6 +537,11 @@
 	bool EthernetClass::begin(byte mac[6],IPAddress& ip) {
 		// this method is officially left blank		
 	} // begin()
+
+
+	bool EthernetClass::begin(byte mac[6],byte ip[4]) {
+		// this method is officially left blank		
+	} // begin()
 	
 
 	char* EthernetClass::localIP() {
@@ -638,6 +655,11 @@
 	void EthernetClient::print(const char* str) {
 		printAtom(str,strlen(str));
 	} // print(const char*)
+
+
+	void EthernetClient::print(String s) {
+		print(s.c_str());
+	} // print(String)
 	
 
 	void EthernetClient::println() {
@@ -659,6 +681,11 @@
 		
 	} // println(char*)
 		
+
+	void EthernetClient::println(String s) {
+		println(s.c_str());
+	} // println(String)
+	
 
 	bool EthernetClient::connected() {	
 		return ( fd != -1 );
@@ -698,10 +725,16 @@
 	
 	void EthernetClient::stop() {	
 	
-		close(fd);
-		fd = -1;		
 		
-		if (server != NULL) server->clientDisconnect();
+		if (server == NULL) {
+			close(fd);
+			fd = -1;		
+			return;
+		}
+			
+		server->clientDisconnect();
+		fd = -1;
+		firstDataReceived = false;
 		
 	} // stop()
 	
@@ -766,6 +799,9 @@
 		servaddr.sin_family = AF_INET;
 		servaddr.sin_addr.s_addr = INADDR_ANY;
 		servaddr.sin_port = htons(port);
+
+		int yes = 1;
+		setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int));
 
 		int retry = 0;
 		while (true) {
@@ -833,7 +869,8 @@
 
 
 	void EthernetServer::clientDisconnect() {
-	
+
+		shutdown(clientFd,SHUT_RDWR);
 		close(clientFd);
 		clientFd = -1;
 		clientFirstDataReceived = false;
