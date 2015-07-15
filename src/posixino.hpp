@@ -10,6 +10,7 @@
 # include <unistd.h>
 # include <string.h>
 # include <errno.h>
+# include <fcntl.h>
 # include <sys/types.h>
 # include <sys/time.h>
 # include <sys/socket.h>
@@ -206,6 +207,7 @@ class EthernetClient {
 		EthernetClient();
 		bool connect(const char* host,int port);
 		bool connect(IPAddress& host,int port);
+		void setFd(int f);
 		void print(int value);
 		void print(const char* str);
 		void println();
@@ -215,7 +217,6 @@ class EthernetClient {
 		char read();
 		void stop();
 		operator bool() const;
-		void hello();
 
 }; // class EthernetClient
 
@@ -223,14 +224,23 @@ class EthernetClient {
 
 class EthernetServer {
 
+	friend EthernetClient;
+
 	private:
 		bool initialized;
+		int fd;
+		struct sockaddr_in servaddr;		
 		int devicePort;
 		int port;
+		EthernetClient client;	
+	  socklen_t clilen;
+	  struct sockaddr_in cliaddr;
+
 
 	protected:
 		void checkInitialization();
-		EthernetClient client;	
+		void listen();
+		int accept();
 	
 	public:
 		EthernetServer(int port);

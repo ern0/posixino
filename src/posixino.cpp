@@ -610,6 +610,11 @@
 		
 		return ( res != -1 );
 	} // connect(IPAddress&,...)
+
+
+	void EthernetClient::setFd(int f) {
+		fd = f;
+	} // setFd()
 	
 
 	void EthernetClient::printAtom(const char* data,int len) {
@@ -657,6 +662,9 @@
 		
 
 	bool EthernetClient::connected() {
+		
+		if (server != NULL) fd = server->accept();
+		
 		return ( fd != -1 );
 	} // connected()
 	
@@ -706,14 +714,10 @@
 	} // operator bool
 	
 	
-	void EthernetClient::hello() {
-		printf("hellog\n");
-	}
-	
-	
 	EthernetServer::EthernetServer(int p) {
 	
 		initialized = false;
+		fd = -1;
 	
 		port = p;
 		devicePort = p;
@@ -728,7 +732,7 @@
 
 		posixino.printPrefix();		
 		fprintf(stderr,"listening on port %d ",port);
-		if (devicePort != port) fprintf(stderr,"(device port: %d)",devicePort);
+		if (devicePort != port) fprintf(stderr,"(was: %d)",devicePort);
 		fprintf(stderr,"\n");
 		
 	} // begin()
@@ -744,12 +748,89 @@
 		
 	} // checkInitialization()
 	
+	
+	void EthernetServer::listen() {	
 
+	  fd = socket(AF_INET,SOCK_STREAM,0);
+	  if (fd == -1) {
+			posixino.printErrorPrefix();
+			perror("failed opening socket");
+			exit(1);
+		} // if socket open fail
+
+		int flags = fcntl(fd,F_GETFL);
+		flags |= O_NONBLOCK;
+		fcntl(fd,F_SETFL,flags);
+
+		memset(&servaddr,0,sizeof(servaddr));
+		servaddr.sin_family = AF_INET;
+		servaddr.sin_addr.s_addr = INADDR_ANY;
+		servaddr.sin_port = htons(port);
+
+		int retry = 0;
+		while (true) {
+
+			if (bind(fd,(struct sockaddr*)&servaddr,sizeof(servaddr)) == -1) {
+
+				if (errno == EADDRINUSE) {
+					if (retry == 0) {
+						posixino.printPrefix();
+						fprintf(stderr,": bind failed, retrying");
+					} else {
+						fprintf(stderr,".");
+					}
+					retry++;
+					sleep(2);
+					continue;
+				} // if recoverable error
+
+				fprintf(stderr,"\n");
+				posixino.printErrorPrefix();
+				perror("error on binding");
+				exit(1);
+
+			} // if bind failed
+			
+			else break;
+
+		} // while forever
+		
+		if (retry > 0) fprintf(stderr,"succeed \n");
+
+		if (::listen(fd,5) == -1) {
+			posixino.printErrorPrefix();
+			perror("listen");
+			exit(1);
+		}	
+		
+	} // listen()
+
+
+	int EthernetServer::accept() {
+
+		while (true) {
+			int conn = ::accept(fd,(struct sockaddr*)&cliaddr,&clilen);
+			if (conn != -1) return conn;
+			
+			if (errno != EAGAIN) break;
+			
+			sleep(1);
+		} // forever
+
+
+		return -1;
+	} // accept()
+	
 
 	EthernetClient EthernetServer::available() {
 		checkInitialization();
-	
-		/// TODO
+
+		if (fd == -1) {
+			listen();
+			if (fd == -1) exit(1);
+		}		
 	
 		return client;
 	} // available()
+
+
