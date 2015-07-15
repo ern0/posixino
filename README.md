@@ -113,8 +113,8 @@ Minor Ethernet server concept bug implemented:
 which is `true` only when the first data arrives 
 (should be `true` when a client connects).
 
-Some `String` support added by using `string` class.
-You can now concatenate strings by `+` operator.
+Some `String` support added by using standard library's `string` class.
+Now strings can be concatenated by the `+` operator.
 
 Posixino is now tested on Linux only,
 but it will be tested on Mac OS X before major releases.
