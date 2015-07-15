@@ -54,7 +54,8 @@ void setup() {
 
 void loop() {
   // listen for incoming clients
-  EthernetClient client = server.available();
+  EthernetClient client = server.available();  
+Serial.print("-");  
   if (client) {
     Serial.println("new client");
     // an http request ends with a blank line
@@ -96,11 +97,11 @@ void loop() {
         }
       }
     }
-sleep(1);  
     // give the web browser time to receive the data
     delay(1);
     // close the connection:
     client.stop();
     Serial.println("client disconnected");
   }
+  usleep(25000);
 }

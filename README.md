@@ -103,10 +103,15 @@ Here is the actual list of working examples:
 - `Communication/ASCIITable` (serial print)
 - `Basics/Blink` (digital out)
 - `Ethernet/WebClient` (HTTP request)
-- `Ethernet/WebServer` (HTTP listener) - STUB ONLY
+- `Ethernet/WebServer` (HTTP listener)
 - `LiquidCrystal/HelloWorld` (LCD test)
 - `LiquidCrystal/Scroll` (LCD scroll)
 - `LiquidCrystal/SerialDisplay` (serial input)
+
+Minor Ethernet server concept bug implemented:
+`server.available()` returns a `client` object, 
+which is `true` only when the first data arrives 
+(should be `true` when a client connects).
 
 Posixino is now tested on Linux only,
 but it will be tested on Mac OS X before major releases.

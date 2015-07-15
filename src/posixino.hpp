@@ -196,18 +196,20 @@ class IPAddress {
 
 class EthernetClient {
 
+	friend EthernetServer;
+
 	private:
 		EthernetServer* server;
 		int fd;
 		struct sockaddr_in servaddr;
+		bool firstDataReceived;
 	protected:
 		void printAtom(const char* data,int len);
-		void setServer(EthernetServer* server);
+		void connectedByServer(EthernetServer* server,int fd,int dr);
 	public:
 		EthernetClient();
 		bool connect(const char* host,int port);
 		bool connect(IPAddress& host,int port);
-		void setFd(int f);
 		void print(int value);
 		void print(const char* str);
 		void println();
@@ -235,12 +237,14 @@ class EthernetServer {
 		EthernetClient client;	
 	  socklen_t clilen;
 	  struct sockaddr_in cliaddr;
-
+	  int clientFd;
+	  bool clientFirstDataReceived;
 
 	protected:
 		void checkInitialization();
 		void listen();
-		int accept();
+		void accept();
+		void clientDisconnect();
 	
 	public:
 		EthernetServer(int port);

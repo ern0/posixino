@@ -242,6 +242,7 @@
 		if (posx == 0) printf("SER|");
 		
 		printf("%c",chr);
+		fflush(stdout);
 		
 		if (chr == 0x0a) {
 			posx = 0;
@@ -575,12 +576,8 @@
 	EthernetClient::EthernetClient() {
 		server = NULL;
 		fd = -1;
+		firstDataReceived = false;
 	} // EthernetClient() ctor
-	
-	
-	void EthernetClient::setServer(EthernetServer* s) {
-		server = s;
-	} // setServer()
 	
 	
 	bool EthernetClient::connect(const char* host,int port) {
@@ -612,9 +609,11 @@
 	} // connect(IPAddress&,...)
 
 
-	void EthernetClient::setFd(int f) {
+	void EthernetClient::connectedByServer(EthernetServer* s,int f,int d) {
+		server = s;
 		fd = f;
-	} // setFd()
+		firstDataReceived = d;
+	} // connectedByServer()
 	
 
 	void EthernetClient::printAtom(const char* data,int len) {
@@ -661,10 +660,7 @@
 	} // println(char*)
 		
 
-	bool EthernetClient::connected() {
-		
-		if (server != NULL) fd = server->accept();
-		
+	bool EthernetClient::connected() {	
 		return ( fd != -1 );
 	} // connected()
 	
@@ -701,16 +697,18 @@
 	
 	
 	void EthernetClient::stop() {	
+	
 		close(fd);
 		fd = -1;		
+		
+		if (server != NULL) server->clientDisconnect();
+		
 	} // stop()
 	
 
-	EthernetClient::operator bool() const {
-	
-		/// TODO
-		
-		return true;
+	EthernetClient::operator bool() const {	
+		if (server == NULL) return true;		
+		return firstDataReceived;
 	} // operator bool
 	
 	
@@ -718,6 +716,8 @@
 	
 		initialized = false;
 		fd = -1;
+		clientFd = -1;
+		clientFirstDataReceived = false;
 	
 		port = p;
 		devicePort = p;
@@ -806,31 +806,36 @@
 	} // listen()
 
 
-	int EthernetServer::accept() {
+	void EthernetServer::accept() {
 
-		while (true) {
-			int conn = ::accept(fd,(struct sockaddr*)&cliaddr,&clilen);
-			if (conn != -1) return conn;
-			
-			if (errno != EAGAIN) break;
-			
-			sleep(1);
-		} // forever
+		clientFd = ::accept(fd,(struct sockaddr*)&cliaddr,&clilen);
+		clientFirstDataReceived = false;
 
-
-		return -1;
 	} // accept()
 	
-
+	
 	EthernetClient EthernetServer::available() {
 		checkInitialization();
 
-		if (fd == -1) {
-			listen();
-			if (fd == -1) exit(1);
-		}		
+		if (fd == -1) listen();
+		if (clientFd == -1) accept();
+		
+		if (!clientFirstDataReceived) {
+			char data[1];
+			int x = recv(clientFd,data,1,MSG_DONTWAIT | MSG_PEEK);		
+			if (x == 1) clientFirstDataReceived = true;		
+		}
+
+		client.connectedByServer(this,clientFd,clientFirstDataReceived);
 	
 		return client;
 	} // available()
 
 
+	void EthernetServer::clientDisconnect() {
+	
+		close(clientFd);
+		clientFd = -1;
+		clientFirstDataReceived = false;
+	
+	} // clientDisconnect()
