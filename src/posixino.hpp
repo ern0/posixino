@@ -59,11 +59,13 @@ typedef bool boolean;
 
 class SerialClass;
 class LiquidCrystal;
+class EthernetServer;
 
 class Posixino {
 
 	friend SerialClass;
 	friend LiquidCrystal;
+	friend EthernetServer;
 
 	private:
     struct termios orig_term_attr;
@@ -80,6 +82,7 @@ class Posixino {
 		unsigned long long millisSinceEpoch();
 		void printErrorPrefix();
 		void printPrefix(const char* str);
+		void printPrefix();
 		void renderDigitalOuts();
 		void eraseDigitalOuts();
 		void restoreDigitalOuts();
@@ -102,7 +105,7 @@ class Posixino {
 class SerialClass {
 
 	private:
-		bool isInitialized;
+		bool initialized;
 		int posx;
 	protected:
 		void checkInitialization();
@@ -131,7 +134,7 @@ class SerialClass {
 class LiquidCrystal {
 
 	private:
-		bool isInitialized;
+		bool initialized;
 		int w;
 		int h;
 		int x;
@@ -193,10 +196,12 @@ class IPAddress {
 class EthernetClient {
 
 	private:
+		EthernetServer* server;
 		int fd;
 		struct sockaddr_in servaddr;
 	protected:
 		void printAtom(const char* data,int len);
+		void setServer(EthernetServer* server);
 	public:
 		EthernetClient();
 		bool connect(const char* host,int port);
@@ -219,8 +224,14 @@ class EthernetClient {
 class EthernetServer {
 
 	private:
+		bool initialized;
+		int devicePort;
 		int port;
 
+	protected:
+		void checkInitialization();
+		EthernetClient client;	
+	
 	public:
 		EthernetServer(int port);
 		void begin();

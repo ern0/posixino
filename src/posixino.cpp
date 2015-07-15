@@ -149,14 +149,19 @@
 	
 	
 	void Posixino::printErrorPrefix() {
-		printPrefix("error");
+		printPrefix(" error");
 	} // printErrorPrefix()
 	
 	
 	void Posixino::printPrefix(const char* str) {
 		posixino.eraseDigitalOuts();
-		fprintf(stderr,"POSIXINO %s: ",str);
-	} // printErrorPrefix()
+		fprintf(stderr,"POSIXINO%s: ",str);
+	} // printErrorPrefix(char*)
+	
+	
+	void Posixino::printPrefix() {
+		printPrefix("");
+	} // printPrefix(void)
 	
 	
 	void Posixino::renderDigitalOuts() {
@@ -206,7 +211,7 @@
 	
 	
 	SerialClass::SerialClass() {
-		isInitialized = false;
+		initialized = false;
 		posx = 0;
 	} // SerialClass() ctor
 	
@@ -218,7 +223,7 @@
 
 	void SerialClass::checkInitialization() {
 	
-		if (isInitialized) return;
+		if (initialized) return;
 		
 		posixino.printErrorPrefix();
 		fprintf(stderr,"serial port must be initialized first \n");
@@ -228,7 +233,7 @@
 	
 	
 	void SerialClass::begin(int speed) {	
-		isInitialized = true;
+		initialized = true;
 	} // begin()
 	
 
@@ -362,7 +367,7 @@
 
 	void LiquidCrystal::checkInitialization() {
 	
-		if (isInitialized) return;
+		if (initialized) return;
 		
 		posixino.printErrorPrefix();
 		fprintf(stderr,"LCD must be initialized first \n");
@@ -417,7 +422,7 @@
 	
 	void LiquidCrystal::begin(int pw,int ph) {	
 		
-		isInitialized = true;
+		initialized = true;
 		firstClear = true;
 		
 		w = pw;
@@ -568,10 +573,16 @@
 
 
 	EthernetClient::EthernetClient() {
+		server = NULL;
 		fd = -1;
 	} // EthernetClient() ctor
 	
-
+	
+	void EthernetClient::setServer(EthernetServer* s) {
+		server = s;
+	} // setServer()
+	
+	
 	bool EthernetClient::connect(const char* host,int port) {
 
 		struct hostent* he = gethostbyname(host);
@@ -702,21 +713,43 @@
 	
 	EthernetServer::EthernetServer(int p) {
 	
+		initialized = false;
+	
 		port = p;
+		devicePort = p;
 		if (port < 1024) port += 8000;
 		
 	} // EthernetServer()
 
 
 	void EthernetServer::begin() {
-	
+		
+		initialized = true;
+
+		posixino.printPrefix();		
+		fprintf(stderr,"listening on port %d ",port);
+		if (devicePort != port) fprintf(stderr,"(device port: %d)",devicePort);
+		fprintf(stderr,"\n");
+		
 	} // begin()
 
 
+	void EthernetServer::checkInitialization() {
+	
+		if (initialized) return;
+		
+		posixino.printErrorPrefix();
+		fprintf(stderr,"ethernet must be initialized first \n");
+		exit(1);
+		
+	} // checkInitialization()
+	
+
+
 	EthernetClient EthernetServer::available() {
+		checkInitialization();
 	
 		/// TODO
 	
-		EthernetClient ec;
-		return ec;
+		return client;
 	} // available()
