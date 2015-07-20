@@ -5,7 +5,7 @@ Posixino
 
 Posixino is the re-implementation 
 of the most important Arduino libraries for
-POSIX systems (Linux, BSD, Mac OS X).
+POSIX systems (Linux, BSD and Mac OS X).
 It makes possible to compile and run
 Arduino sketches on desktop computers
 without modifications.
@@ -42,14 +42,15 @@ embedded programming is not a fun without any device.
 
 Posixino is trying to mimic the behavior of the original libraries,
 but there is a good chance that something will work different way,
-so testing your program on real hardware is important. 
+so testing your program on real hardware is still important. 
 If you have no device, but you need exact simulation of it,
 using emulator is a better choice.
 
 ### Demo (kinda) ###
 
 Here's the output of the 
-`LiquidCrystal/HelloWorld.cpp` example sketch:
+`LiquidCrystal/HelloWorld.cpp` example sketch
+(it prints a static message and a counter):
     
 ```
     ________________
@@ -68,7 +69,9 @@ LCD|2               |
 
 ### How to use ###
 
-Simply add Posixino header include to your program:
+Simply change add conditional Posixino header include to your program
+(fun fact: there is no common pre-defined macro on Linux and OS X, e.g.
+`__posix`):
 
 ```
 # if ( defined(__unix__) || defined(__APPLE__) )
@@ -84,7 +87,7 @@ Compile both Posixino and your program,
 then link them together.
 
 Quick-and-dirty: you may include `posixino.cpp`, 
-so you will compile your sketch with Posixino as a single program.
+so you will compile your sketch and Posixino as a single program.
 
 ### Coverage ###
 
@@ -92,9 +95,10 @@ Posixino is in early stage,
 but most of 
 digital out, web client and LCD 
 functions are working.
+Timer interrupts are not implemented yet.
 
-As I'm working on the framework,
-I will add factory examples one by one
+As we're working on the framework,
+we will add factory examples one by one
 to the `test/` folder,
 then implement library functions they're using.
 
@@ -108,13 +112,27 @@ Here is the actual list of working examples:
 - `LiquidCrystal/Scroll` (LCD scroll)
 - `LiquidCrystal/SerialDisplay` (serial input)
 
-Minor Ethernet server concept bug implemented:
+Minor Ethernet server concept issue implemented:
 `server.available()` returns a `client` object, 
-which is `true` only when the first data arrives 
-(should be `true` when a client connects).
+which is `true` only when the first data arrives from the client
+(should be `true` just as the client connects).
+This also means that you can't even detect a client connection
+which does not send any data 
+(as far as I can remember this is a lwIP behavior,
+not Arduino-specific).
 
-Some `String` support added by using standard library's `string` class.
-Now strings can be concatenated using the `+` operator.
+Minor `String` support added by using standard library's `string` class.
+Now strings can be concatenated using the `+` operator,
+we're happy to support Java-to-C++ switchers.
 
-Posixino is now tested on Linux only,
-but it will be tested on Mac OS X before major releases.
+Posixino is developed on Linux,
+but releases are tested on Mac OS X as well
+(but not on BSD).
+
+### Plans ###
+
+- BSD support (a BSD buddy should help)
+- Some kind of interrupt emulation
+- Split the code to smaller units
+- Direct UI for inputs
+- Data generator for inputs
