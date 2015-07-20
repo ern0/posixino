@@ -71,7 +71,7 @@ LCD|2               |
 Simply add Posixino header include to your program:
 
 ```
-# if ( defined(__unix__)) || (defined(__APPLE__) )
+# if ( defined(__unix__) || defined(__APPLE__) )
 # include "posixino/posixino.hpp"
 # else
 
