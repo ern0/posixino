@@ -35,7 +35,7 @@
  http://www.arduino.cc/en/Tutorial/LiquidCrystal
  */
 
-# ifdef __unix
+# if ( defined(__unix__)) || (defined(__APPLE__) )
 # include "../../src/posixino.cpp"
 # else
 
