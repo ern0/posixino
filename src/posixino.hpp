@@ -24,6 +24,11 @@
 # include <string>
 using namespace std;
 
+// Mac OS X hack
+# ifndef MSG_NOSIGNAL
+# define MSG_NOSIGNAL (0)
+# endif
+
 // Unix functions
 int main();
 void quit(int sig);
