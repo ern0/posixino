@@ -37,6 +37,8 @@
 	int digitalRead(int pin) { return posixino.digitalRead(pin); }
 	void analogWrite(int pin,int value) { posixino.analogWrite(pin,value); }
 	int analogRead(int pin) { return posixino.analogRead(pin); }
+	void cli() { posixino.cli(); }
+	void sei() { posixino.sei(); }
 
 		
 	void Posixino::init() {
@@ -876,3 +878,42 @@
 		clientFirstDataReceived = false;
 	
 	} // clientDisconnect()
+
+
+	void Posixino::cli() {
+		// this method is officially left blank
+	} // cli()
+
+
+	void Posixino::sei() {
+	
+		# ifdef TIMER0
+			do {
+				if (TCCR0A == -1) break;
+				if (TCCR0B == -1) break;
+				setupTimerInterrupt(0,TCCR0A,TCCR0B);
+			} while (false);
+		# endif
+
+		# ifdef TIMER1
+			do {
+				if (TCCR1A == -1) break;
+				if (TCCR1B == -1) break;
+				setupTimerInterrupt(1,TCCR1A,TCCR1B);
+			} while (false);
+		# endif
+
+		# ifdef TIMER2
+			do {
+				if (TCCR2A == -1) break;
+				if (TCCR2B == -1) break;
+				setupTimerInterrupt(2,TCCR2A,TCCR2B);
+			} while (false);
+		# endif
+	
+	} // sei()
+
+
+	void Posixino::setupTimerInterrupt(int num,int a,int b) {
+		printf("timer interrupt %d \n",num);
+	} // setupTimerInterrupt()

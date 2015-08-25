@@ -4,4 +4,5 @@
 #bin/asciitable
 #bin/serialdisplay
 #bin/webserver
-bin/milan_autos
+#bin/milan_autos
+bin/interrupt

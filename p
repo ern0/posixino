@@ -7,4 +7,5 @@ mkdir -p bin
 #g++ test/Communication/ASCIITable.cpp -o bin/asciitable
 #g++ test/LiquidCrystal/SerialDisplay.cpp -o bin/serialdisplay
 #g++ test/Ethernet/WebServer.cpp -o bin/webserver
-g++ test/milan_autos.cpp -o bin/milan_autos
+#g++ test/milan_autos.cpp -o bin/milan_autos
+g++ test/interrupt.cpp -o bin/interrupt

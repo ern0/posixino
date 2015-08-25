@@ -22,23 +22,84 @@
 # include <termios.h>
 
 # include <string>
+
 using namespace std;
 
+
 // Mac OS X hack
+
 # ifndef MSG_NOSIGNAL
 # define MSG_NOSIGNAL (0)
 # endif
 
+
 // Unix functions
+
 int main();
 void quit(int sig);
 void cleanup();
 
+
 // Arduino entry points
+
 void setup();
 void loop();
 
+
+// Timer interrupts macro and stubs 
+
+# define ISR(vector) void vector()
+
+# ifndef TIMER0
+ISR(TIMER0_COMPA_vect) { }
+# endif
+
+# ifndef TIMER1
+ISR(TIMER1_COMPA_vect) { }
+# endif
+
+# ifndef TIMER2
+ISR(TIMER2_COMPA_vect) { }
+# endif
+
+
+// Timer interrupts globals and constats
+
+int TCCR0A = -1;
+int TCCR0B = -1;
+int TCNT0  = -1;
+int OCR0A = -1;
+int TIMSK0 = -1;
+
+# define WGM01 (0)
+# define CS00 (0)
+# define CS01 (0)
+# define OCIE0A (0)
+		
+int TCCR1A = -1;
+int TCCR1B = -1;
+int TCNT1  = -1;
+int OCR1A = -1;
+int TIMSK1 = -1;
+
+# define WGM12 (0)
+# define CS10 (0)
+# define CS12 (0)
+# define	OCIE1A (0)
+
+int TCCR2A = -1;
+int TCCR2B = -1;
+int TCNT2  = -1;
+int OCR2A = -1;
+int TIMSK2 = -1;
+
+# define WGM21 (0)
+# define CS21 (0)
+# define	OCIE2A (0)
+	
+
 // Arduino global functions
+
 void delay(int ms);
 void pinMode(int pin,int mode);
 int digitalRead(int pin);
@@ -46,6 +107,8 @@ void digitalWrite(int pin,int value);
 int analogRead(int pin);
 void analogWrite(int pin,int value);
 int millis();
+void cli();
+void sei();
 
 
 
@@ -97,6 +160,7 @@ class Posixino {
 		void renderDigitalOuts();
 		void eraseDigitalOuts();
 		void restoreDigitalOuts();
+		void setupTimerInterrupt(int num,int a,int b);
 	public:
 		bool isKeyAvailable();
 		int readKey();
@@ -111,6 +175,8 @@ class Posixino {
 		void digitalWrite(int pin,int value);		
 		int analogRead(int pin);
 		void analogWrite(int pin,int value);		
+		void sei();
+		void cli();
 
 }; // Posixino
 
