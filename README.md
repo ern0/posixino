@@ -178,11 +178,10 @@ will occur compile-time error.
 
 All the register names and 
 `cli()/sti()` functions are definied by Posixino,
-but has no effect at all.
-
+but has no effect at all. 
 Future versions may calculate timer interval values
 based on register values set,
-if `TIMERx` are set to "auto" value (e.g. -1).
+if `TIMERx` are set to invalid value (e.g. -1).
 
 Timer interrupt emulation uses C++11 features
 (thread, mutex), 
