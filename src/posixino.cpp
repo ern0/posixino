@@ -9,9 +9,11 @@
 		atexit(cleanup);
 		signal(SIGINT,quit);
 		
-		posixino.init();		
-		
+		posixino.init();			
 		setup();
+		# ifdef __TIMER_USED
+		posixino.startTimerThreads();
+		# endif
 		while(true) loop();		
 	} // main()
 	
@@ -39,7 +41,7 @@
 	int analogRead(int pin) { return posixino.analogRead(pin); }
 	void cli() { posixino.cli(); }
 	void sei() { posixino.sei(); }
-
+	
 		
 	void Posixino::init() {
 	
@@ -60,9 +62,13 @@
     new_term_attr.c_cc[VTIME] = 0;
     new_term_attr.c_cc[VMIN] = 0;
     tcsetattr(fileno(stdin),TCSANOW,&new_term_attr);
+    
+		# ifdef __TIMER_USED
+    waitForTimerSet = true;
+    # endif
 		
 	} // init()
-
+	
 
 	void Posixino::cleanup() {
     tcsetattr(fileno(stdin),TCSANOW,&orig_term_attr);
@@ -917,3 +923,8 @@
 	void Posixino::setupTimerInterrupt(int num,int a,int b) {
 		printf("timer interrupt %d \n",num);
 	} // setupTimerInterrupt()
+
+
+	void Posixino::startTimerThreads() {
+		while (waitForTimerSet) usleep(1000);
+	}

@@ -21,10 +21,9 @@ Posixino is designed to produce CLI programs;
 serial output, digital out states, LCD display content etc.
 will appear on the console.
 
-There is no complex embedded software without interrupts,
-so timer interrupts will be emulated,
-at least an interrupt routine will be called
-at the specified interval.
+Interrupt emulation is not 100% accurate yet,
+three timer interrupt routines can be set up
+which will be called at specified intervals.
 
 ### Benefits ###
 
@@ -129,10 +128,71 @@ Posixino is developed on Linux,
 but releases are tested on Mac OS X as well
 (but not on BSD).
 
+### Timer interrupts ###
+
+To activate a timer, define value of
+`TIMER0`, `TIMER1` or `TIMER2`
+to required interval (millisec),
+`ISR(TIMER0_COMPA_vect)`,
+`ISR(TIMER1_COMPA_vect)` or
+`ISR(TIMER2_COMPA_vect)` functions
+will be called, respectively.
+
+Non-matching `TIMERx` defines and `ISR` functions
+will occur compile-time error.
+
+```
+# if ( defined(__unix__) || defined(__APPLE__) )
+# define TIMER1 1000
+# include "posixino/posixino.hpp"
+# endif
+
+	void setup() {
+	
+		cli();
+		
+		//set timer1 interrupt at 1Hz
+		TCCR1A = 0; // set entire TCCR1A register to 0
+		TCCR1B = 0; // same for TCCR1B
+		TCNT1  = 0; // initialize counter value to 0
+		// set compare match register for 1hz increments
+		OCR1A = 15624; // = (16*10^6) / (1*1024) - 1 (must be <65536)
+		// turn on CTC mode
+		TCCR1B |= (1 << WGM12);
+		// Set CS12 and CS10 bits for 1024 prescaler
+		TCCR1B |= (1 << CS12) | (1 << CS10);  
+		// enable timer compare interrupt
+		TIMSK1 |= (1 << OCIE1A);
+		
+		sei();
+		
+	} // setup
+	
+	ISR(TIMER1_COMPA_vect) {
+	
+		// blink the led, whatever
+		
+	} // timer1 interrupt
+
+```
+
+All the register names and 
+`cli()/sti()` functions are definied by Posixino,
+but has no effect at all.
+
+Future versions may calculate timer interval values
+based on register values set,
+if `TIMERx` are set to "auto" value (e.g. -1).
+
+Timer interrupt emulation uses C++11 features
+(thread, mutex), 
+you may use `--std=c++11` compiler flag.
+
 ### Plans ###
 
 - BSD support (a BSD buddy should help)
-- Some kind of interrupt emulation
 - Split the code to smaller units
 - Direct UI for inputs
 - Data generator for inputs
+- Set timer interrupt intervals 
+  based on register values

@@ -50,16 +50,28 @@ void loop();
 
 # define ISR(vector) void vector()
 
-# ifndef TIMER0
+# ifdef TIMER0
+# define __TIMER_USED
+# else
 ISR(TIMER0_COMPA_vect) { }
 # endif
 
-# ifndef TIMER1
+# ifdef TIMER1
+# define __TIMER_USED
+# else
 ISR(TIMER1_COMPA_vect) { }
 # endif
 
-# ifndef TIMER2
+# ifdef TIMER1
+# define __TIMER_USED
+# else
 ISR(TIMER2_COMPA_vect) { }
+# endif
+
+# ifdef __TIMER_USED
+# if __cplusplus <= 199711L
+# error Timer interrupt emulation requires std::thread, use -std=c++11 compiler option
+# endif
 # endif
 
 
@@ -150,6 +162,7 @@ class Posixino {
 		bool isDigitalOutsDisplayed;
 		unsigned long long startMillis;
 		int key;
+		bool waitForTimerSet;
 
 	protected:
 		void outOfMem();
@@ -164,6 +177,7 @@ class Posixino {
 	public:
 		bool isKeyAvailable();
 		int readKey();
+		void startTimerThreads();
 
 	public:
 		void init();
