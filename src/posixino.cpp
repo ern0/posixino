@@ -12,7 +12,7 @@
 		posixino.init();			
 		setup();
 		# ifdef __TIMER_USED
-		posixino.startTimerThreads();
+		posixino.startTimerThread();
 		# endif
 		while(true) loop();		
 	} // main()
@@ -21,6 +21,7 @@
 	void quit(int sig) {
 	
 		cleanup();
+		usleep(500);
 		fprintf(stdout,"READY. \n");
 		exit(0);
 		
@@ -41,6 +42,8 @@
 	int analogRead(int pin) { return posixino.analogRead(pin); }
 	void cli() { posixino.cli(); }
 	void sei() { posixino.sei(); }
+
+	void callTimerThread() { posixino.timerThread(); }
 	
 		
 	void Posixino::init() {
@@ -893,11 +896,15 @@
 
 	void Posixino::sei() {
 	
+		interruptCounter[0] = -1;
+		interruptCounter[1] = -1;
+		interruptCounter[2] = -1;
+	
 		# ifdef TIMER0
 			do {
 				if (TCCR0A == -1) break;
 				if (TCCR0B == -1) break;
-				setupTimerInterrupt(0,TCCR0A,TCCR0B);
+				setupTimerInterrupt(0,TIMER0,TCCR0A,TCCR0B);
 			} while (false);
 		# endif
 
@@ -905,7 +912,7 @@
 			do {
 				if (TCCR1A == -1) break;
 				if (TCCR1B == -1) break;
-				setupTimerInterrupt(1,TCCR1A,TCCR1B);
+				setupTimerInterrupt(1,TIMER1,TCCR1A,TCCR1B);
 			} while (false);
 		# endif
 
@@ -913,18 +920,69 @@
 			do {
 				if (TCCR2A == -1) break;
 				if (TCCR2B == -1) break;
-				setupTimerInterrupt(2,TCCR2A,TCCR2B);
+				setupTimerInterrupt(2,TIMER2,TCCR2A,TCCR2B);
 			} while (false);
 		# endif
+	
+		waitForTimerSet = false;
 	
 	} // sei()
 
 
-	void Posixino::setupTimerInterrupt(int num,int a,int b) {
-		printf("timer interrupt %d \n",num);
+	void Posixino::setupTimerInterrupt(int num,int force,int a,int b) {
+		
+		interruptCounter[num] = 0;
+		
+		if (force > 0) {
+			interruptTiming[num] = force;
+			return;
+		}
+		
+		/// TODO: set timing based on register values
+		interruptTiming[num] = 999;
+		
 	} // setupTimerInterrupt()
 
 
-	void Posixino::startTimerThreads() {
-		while (waitForTimerSet) usleep(1000);
-	}
+	void Posixino::startTimerThread() {
+	
+		while (waitForTimerSet) usleep(100*000);		
+		static std::thread timerThread(callTimerThread);
+		timerThread.detach();
+		
+	} // startTimerThread()
+	
+	
+	void Posixino::timerThread() {	
+	
+		while (true) {
+			for (int n = 0; n < 3; n++) {		
+			
+				usleep(1);
+					
+				if (interruptCounter[0] < 0) continue;
+		
+					interruptCounter[n] += 1000;
+					if (interruptCounter[n] < interruptTiming[n]) continue;
+					interruptCounter[n] -= interruptTiming[n];
+					
+					if (n == 0) {
+						# ifdef TIMER0
+							TIMER0_COMPA_vect();
+						# endif
+					}
+					if (n == 1) {
+						# ifdef TIMER1
+							TIMER1_COMPA_vect();
+						# endif
+					}
+					if (n == 2) {
+						# ifdef TIMER2
+							TIMER2_COMPA_vect();
+						# endif
+					}		
+			
+			} // for interrupts
+		} // forever	
+		
+	} // timerThread()

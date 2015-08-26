@@ -22,6 +22,7 @@
 # include <termios.h>
 
 # include <string>
+# include <thread>
 
 using namespace std;
 
@@ -50,18 +51,21 @@ void loop();
 
 # define ISR(vector) void vector()
 
+void TIMER0_COMPA_vect();
 # ifdef TIMER0
 # define __TIMER_USED
 # else
 ISR(TIMER0_COMPA_vect) { }
 # endif
 
+void TIMER1_COMPA_vect();
 # ifdef TIMER1
 # define __TIMER_USED
 # else
 ISR(TIMER1_COMPA_vect) { }
 # endif
 
+void TIMER2_COMPA_vect();
 # ifdef TIMER1
 # define __TIMER_USED
 # else
@@ -108,6 +112,8 @@ int TIMSK2 = -1;
 # define WGM21 (0)
 # define CS21 (0)
 # define	OCIE2A (0)
+
+void callTimerThread();
 	
 
 // Arduino global functions
@@ -121,7 +127,6 @@ void analogWrite(int pin,int value);
 int millis();
 void cli();
 void sei();
-
 
 
 // Arduino types and constants
@@ -163,6 +168,8 @@ class Posixino {
 		unsigned long long startMillis;
 		int key;
 		bool waitForTimerSet;
+		int interruptTiming[3];
+		int interruptCounter[3];
 
 	protected:
 		void outOfMem();
@@ -173,11 +180,12 @@ class Posixino {
 		void renderDigitalOuts();
 		void eraseDigitalOuts();
 		void restoreDigitalOuts();
-		void setupTimerInterrupt(int num,int a,int b);
+		void setupTimerInterrupt(int num,int force,int a,int b);
 	public:
 		bool isKeyAvailable();
 		int readKey();
-		void startTimerThreads();
+		void startTimerThread();
+		void timerThread();
 
 	public:
 		void init();

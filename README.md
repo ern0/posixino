@@ -132,7 +132,7 @@ but releases are tested on Mac OS X as well
 
 To activate a timer, define value of
 `TIMER0`, `TIMER1` or `TIMER2`
-to required interval (millisec),
+to required interval (microsec, 1/1000 ms),
 `ISR(TIMER0_COMPA_vect)`,
 `ISR(TIMER1_COMPA_vect)` or
 `ISR(TIMER2_COMPA_vect)` functions

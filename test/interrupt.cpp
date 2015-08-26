@@ -1,7 +1,7 @@
 # if ( defined(__unix__) || defined(__APPLE__) )
-# define TIMER0 1
-# define TIMER1 1000
-# define TIMER2 1
+# define TIMER0 ( 1 / 2000 * 1000 * 1000)
+# define TIMER1 ( 1 / 1 * 1000 * 1000)
+# define TIMER2 ( 1 / 8000 * 1000 * 1000)   
 # include "../src/posixino.cpp"
 # endif
 
