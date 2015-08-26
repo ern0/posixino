@@ -138,7 +138,7 @@ to required interval (microsec, 1/1000 ms),
 `ISR(TIMER2_COMPA_vect)` functions
 will be called, respectively.
 
-Non-matching `TIMERx` defines and `ISR` functions
+Non-matching `TIMERx` define - `ISR` function pairs
 will occur compile-time error.
 
 ```
