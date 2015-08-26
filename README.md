@@ -188,6 +188,9 @@ Timer interrupt emulation uses C++11 features
 (thread, mutex), 
 you may use `--std=c++11` compiler flag.
 
+Don't forget, timer interrupt emulation will
+be never as accurate as real timer interrupts.
+
 ### Plans ###
 
 - BSD support (a BSD buddy should help)
