@@ -143,7 +143,7 @@ will occur compile-time error.
 
 ```
 # if ( defined(__unix__) || defined(__APPLE__) )
-# define TIMER1 1000
+# define TIMER1 (1000 * 1000)
 # include "posixino/posixino.hpp"
 # endif
 
