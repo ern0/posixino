@@ -17,7 +17,10 @@
 			posixino.setupTimerIntervals();
 			posixino.startTimerThread();
 		# endif
-		while(true) loop();		
+		while(true) {
+			loop();		
+			delay(10);
+		}
 	} // main()
 	
 	
@@ -201,8 +204,7 @@
 	
 	
 	int Posixino::digitalRead(int pin) {
-		/// TODO or what
-		return 42;	
+		return pinValueList[pin];
 	} // digitalRead()
 	
 	

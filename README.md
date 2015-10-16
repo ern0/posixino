@@ -136,6 +136,7 @@ to required interval (microsec, 1/1000 ms),
 `ISR(TIMER1_COMPA_vect)` or
 `ISR(TIMER2_COMPA_vect)` functions
 will be called, respectively.
+`ISR_TIMERx_OVF_vect` is not supported yet.
 
 Non-matching `TIMERx` define - `ISR` function pairs
 will occur compile-time error.
