@@ -66,7 +66,7 @@ ISR(TIMER1_COMPA_vect) { }
 # endif
 
 void TIMER2_COMPA_vect();
-# ifdef TIMER1
+# ifdef TIMER2
 # define __TIMER_USED
 # else
 ISR(TIMER2_COMPA_vect) { }
@@ -112,6 +112,8 @@ int TIMSK2 = -1;
 # define WGM21 (0)
 # define CS21 (0)
 # define	OCIE2A (0)
+
+# define CS22 (0)
 
 void callTimerThread();
 	
