@@ -23,6 +23,7 @@
 
 # include <string>
 # include <thread>
+# include <mutex>
 
 using namespace std;
 
@@ -167,18 +168,18 @@ class Posixino {
 		int pinValueList[NO_OF_DIGI_OUTS];
 		bool isDigitalOutsUsed;
 		bool isDigitalOutsDisplayed;
+		std::mutex digitalOutMutex;
 		unsigned long long startMillis;
 		int key;
-		bool waitForTimerSet;
 		int interruptTiming[3];
 		int interruptCounter[3];
 
 	protected:
-		void outOfMem();
-		unsigned long long millisSinceEpoch();
 		void printErrorPrefix();
 		void printPrefix(const char* str);
 		void printPrefix();
+		void fatal(const char* msg,int errorCode);
+		unsigned long long millisSinceEpoch();
 		void renderDigitalOuts();
 		void eraseDigitalOuts();
 		void restoreDigitalOuts();
@@ -186,6 +187,7 @@ class Posixino {
 	public:
 		bool isKeyAvailable();
 		int readKey();
+		void setupTimerIntervals();
 		void startTimerThread();
 		void timerThread();
 

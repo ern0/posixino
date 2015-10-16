@@ -94,7 +94,6 @@ Posixino is in early stage,
 but most of 
 digital out, web client and LCD 
 functions are working.
-Timer interrupts are not implemented yet.
 
 As we're working on the framework,
 we will add factory examples one by one
@@ -187,6 +186,8 @@ Timer interrupt emulation uses C++11 features
 (thread, mutex), 
 you may use `--std=c++11` compiler flag.
 
+The emulated timer interrupt resolution is now 1 ms,
+which is 1000 times longer than the real interrupts.
 Don't forget, timer interrupt emulation will
 be never as accurate as real timer interrupts.
 

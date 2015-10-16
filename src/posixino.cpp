@@ -1,18 +1,21 @@
 # include "posixino.hpp"
 
 
+// ----[ Set up Unix environment ]-------------------------------------
+
 	Posixino posixino;
 
 
 	int main() {
-	
+
 		atexit(cleanup);
 		signal(SIGINT,quit);
 		
-		posixino.init();			
+		posixino.init();
 		setup();
 		# ifdef __TIMER_USED
-		posixino.startTimerThread();
+			posixino.setupTimerIntervals();
+			posixino.startTimerThread();
 		# endif
 		while(true) loop();		
 	} // main()
@@ -33,6 +36,9 @@
 	} // cleanup()
 	
 
+// ----[ Global API functions mappings to the singleton ]--------------
+
+
 	void delay(int ms) { posixino.delay(ms); }
 	int millis() { return posixino.millis(); }
 	void pinMode(int pin,int mode) { posixino.pinMode(pin,mode); }
@@ -45,9 +51,12 @@
 
 	void callTimerThread() { posixino.timerThread(); }
 	
-		
+
+// ----[ Singleton environment ]---------------------------------------
+
+
 	void Posixino::init() {
-	
+
 		isDigitalOutsUsed = false;
 		isDigitalOutsDisplayed = false;
 		
@@ -66,10 +75,6 @@
     new_term_attr.c_cc[VMIN] = 0;
     tcsetattr(fileno(stdin),TCSANOW,&new_term_attr);
     
-		# ifdef __TIMER_USED
-    waitForTimerSet = true;
-    # endif
-		
 	} // init()
 	
 
@@ -78,12 +83,51 @@
 	} // cleanup()
 
 
-	void Posixino::outOfMem() {
-		printErrorPrefix();
-		fprintf(stderr,"out of memory \n");
-		exit(1);
-	} // outOfMem()
+	void Posixino::printErrorPrefix() {
+		printPrefix(" error");
+	} // printErrorPrefix()
 	
+	
+	void Posixino::printPrefix(const char* str) {
+		posixino.eraseDigitalOuts();
+		fprintf(stderr,"POSIXINO%s: ",str);
+	} // printErrorPrefix(char*)
+	
+	
+	void Posixino::printPrefix() {
+		printPrefix("");
+	} // printPrefix(void)
+
+
+	void Posixino::fatal(const char* str,int exitCode) {
+	
+		printErrorPrefix();
+		fprintf(stderr,"%s \n",str);
+		exit(exitCode);
+		
+	} // fatal()
+	
+
+	bool Posixino::isKeyAvailable() {
+	
+		if (key != -1) return true;
+    key = fgetc(stdin);
+    
+		return ( key != -1 );
+	} // isKeyAvailable()
+	
+	
+	int Posixino::readKey() {
+		
+		int k = key;
+		key = -1;
+
+		return k;	
+	} // readKey
+
+
+// ----[ delay() implementation ]--------------------------------------
+
 
 	void Posixino::delay(int ms) {
 		usleep(1000 * ms);
@@ -112,8 +156,11 @@
 	} // millis()
 	
 
+// ----[ Digital and analog I/O ]--------------------------------------
+
+
 	void Posixino::pinMode(int no,int mode) {		
-	
+
 		if (no >= NO_OF_DIGI_OUTS) {
 			printErrorPrefix();
 			fprintf(stderr,"pin number too high %d \n",no);
@@ -171,33 +218,20 @@
 	} // analogRead()
 	
 	
-	void Posixino::printErrorPrefix() {
-		printPrefix(" error");
-	} // printErrorPrefix()
-	
-	
-	void Posixino::printPrefix(const char* str) {
-		posixino.eraseDigitalOuts();
-		fprintf(stderr,"POSIXINO%s: ",str);
-	} // printErrorPrefix(char*)
-	
-	
-	void Posixino::printPrefix() {
-		printPrefix("");
-	} // printPrefix(void)
-	
-	
 	void Posixino::renderDigitalOuts() {
 	
 		if (!isDigitalOutsUsed) return;
 
+		digitalOutMutex.lock();
+		
 		fprintf(stderr,"\rDIG|");
 		for (int n = 0; n < NO_OF_DIGI_OUTS; n++) {
 			fprintf(stderr,"%c",( pinValueList[n] == HIGH ? 'X' : '.' ));
 		}
-		fprintf(stderr," ");
-		
+		fprintf(stderr," ");		
 		isDigitalOutsDisplayed = true;
+
+		digitalOutMutex.unlock();
 	
 	} // renderDigitalOuts()
 	
@@ -212,23 +246,7 @@
 	} // restoreDigitalOuts()
 	
 	
-	bool Posixino::isKeyAvailable() {
-	
-		if (key != -1) return true;
-    key = fgetc(stdin);
-    
-		return ( key != -1 );
-	} // isKeyAvailable()
-	
-	
-	int Posixino::readKey() {
-		
-		int k = key;
-		key = -1;
-
-		return k;	
-	} // readKey
-
+// ----[ Serial ]------------------------------------------------------
 	
 	SerialClass Serial;
 	
@@ -383,6 +401,9 @@
 		return posixino.readKey();
 	} // read()
 	
+	
+// ----[ LiquidCrystal ]-----------------------------------------------	
+
 
 	LiquidCrystal::LiquidCrystal(int p1,int p2,int p3,int p4,int p5,int p6) {
 		// this method is officially left blank		
@@ -443,7 +464,6 @@
 	} // writeChar()
 	
 	
-	
 	void LiquidCrystal::begin(int pw,int ph) {	
 		
 		initialized = true;
@@ -455,9 +475,10 @@
 		int screenSize = w * h;
 		bufferSize = 3 * screenSize;
 		screenBuffer = (unsigned char*)malloc(bufferSize);
-		if (screenBuffer == NULL) posixino.outOfMem();
 		lastScreen = (unsigned char*)malloc(screenSize);
-		if (lastScreen == NULL) posixino.outOfMem();
+		if ((screenBuffer == NULL) || (lastScreen == NULL)) {
+			posixino.fatal("out of memory",1); // implicite exit()			
+		}
 
 		clear();
 		
@@ -536,6 +557,8 @@
 	} // scrollDisplayLeft()
 	
 
+// ----[ Ehternet ]----------------------------------------------------
+
 	EthernetClass Ethernet;
 	
 	
@@ -586,6 +609,9 @@
 	} // localIP()
 
 
+// ----[ IPAddress ] --------------------------------------------------
+
+
 	IPAddress::IPAddress(unsigned char pa,unsigned char pb,unsigned char pc,unsigned char pd) {
 		sprintf(address,"%d.%d.%d.%d",pa,pb,pc,pd);
 	} // IPAddress(unsigned char,unsigned char,unsigned char,unsigned char) ctor
@@ -599,6 +625,9 @@
 	char* IPAddress::getAddress() {
 		return address;
 	} // getAddress()
+
+
+// ----[ EthernetClient ] ---------------------------------------------
 
 
 	EthernetClient::EthernetClient() {
@@ -734,8 +763,7 @@
 	} // read()
 	
 	
-	void EthernetClient::stop() {	
-	
+	void EthernetClient::stop() {		
 		
 		if (server == NULL) {
 			close(fd);
@@ -754,6 +782,9 @@
 		if (server == NULL) return true;		
 		return firstDataReceived;
 	} // operator bool
+	
+
+// ----[ EthernetServer ] ---------------------------------------------
 	
 	
 	EthernetServer::EthernetServer(int p) {
@@ -889,12 +920,20 @@
 	} // clientDisconnect()
 
 
+// ----[ Interrupts ]--------------------------------------------------
+
+
 	void Posixino::cli() {
 		// this method is officially left blank
 	} // cli()
 
 
 	void Posixino::sei() {
+		setupTimerIntervals();
+	} // sei()
+	
+	
+	void Posixino::setupTimerIntervals() {
 	
 		interruptCounter[0] = -1;
 		interruptCounter[1] = -1;
@@ -902,35 +941,30 @@
 	
 		# ifdef TIMER0
 			do {
-				if (TCCR0A == -1) break;
-				if (TCCR0B == -1) break;
+				if ((TCCR0A == -1) || (TCCR0B == -1)) fatal("timer0 not set",2);
 				setupTimerInterrupt(0,TIMER0,TCCR0A,TCCR0B);
 			} while (false);
 		# endif
 
 		# ifdef TIMER1
 			do {
-				if (TCCR1A == -1) break;
-				if (TCCR1B == -1) break;
+				if ((TCCR1A == -1) || (TCCR1B == -1)) fatal("timer1 not set",2);
 				setupTimerInterrupt(1,TIMER1,TCCR1A,TCCR1B);
 			} while (false);
 		# endif
 
 		# ifdef TIMER2
 			do {
-				if (TCCR2A == -1) break;
-				if (TCCR2B == -1) break;
+				if ((TCCR2A == -1) || (TCCR2B == -1)) fatal("timer2 not set",2);
 				setupTimerInterrupt(2,TIMER2,TCCR2A,TCCR2B);
 			} while (false);
 		# endif
 	
-		waitForTimerSet = false;
-	
-	} // sei()
+	} // setupTimerIntervals()
 
 
 	void Posixino::setupTimerInterrupt(int num,int force,int a,int b) {
-		
+
 		interruptCounter[num] = 0;
 		
 		if (force > 0) {
@@ -945,8 +979,7 @@
 
 
 	void Posixino::startTimerThread() {
-	
-		while (waitForTimerSet) usleep(100*000);		
+		
 		static std::thread timerThread(callTimerThread);
 		timerThread.detach();
 		
@@ -956,33 +989,36 @@
 	void Posixino::timerThread() {	
 	
 		while (true) {
-			for (int n = 0; n < 3; n++) {		
-			
-				usleep(1);
-					
-				if (interruptCounter[0] < 0) continue;
 		
-					interruptCounter[n] += 1000;
-					if (interruptCounter[n] < interruptTiming[n]) continue;
-					interruptCounter[n] -= interruptTiming[n];
+			usleep(1000);
+			
+			for (int n = 0; n < 3; n++) {		
+				if (interruptCounter[n] < 0) continue;
+		
+				interruptCounter[n] += 1000;
+				if (interruptCounter[n] < interruptTiming[n]) continue;
+				interruptCounter[n] -= interruptTiming[n];
 					
-					if (n == 0) {
-						# ifdef TIMER0
-							TIMER0_COMPA_vect();
-						# endif
-					}
-					if (n == 1) {
-						# ifdef TIMER1
-							TIMER1_COMPA_vect();
-						# endif
-					}
-					if (n == 2) {
-						# ifdef TIMER2
-							TIMER2_COMPA_vect();
-						# endif
-					}		
+				if (n == 0) {
+					# ifdef TIMER0
+						TIMER0_COMPA_vect();
+					# endif
+				}
+				if (n == 1) {
+					# ifdef TIMER1
+						TIMER1_COMPA_vect();
+					# endif
+				}
+				if (n == 2) {
+					# ifdef TIMER2
+						TIMER2_COMPA_vect();
+					# endif
+				}		
 			
 			} // for interrupts
 		} // forever	
 		
 	} // timerThread()
+
+
+// ----[ more to come... ]---------------------------------------------
