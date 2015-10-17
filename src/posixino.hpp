@@ -101,6 +101,7 @@ int TIMSK1 = -1;
 
 # define WGM12 (0)
 # define CS10 (0)
+# define CS11 (0)
 # define CS12 (0)
 # define	OCIE1A (0)
 
