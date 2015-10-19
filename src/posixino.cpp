@@ -297,7 +297,7 @@
 
 
 	void SerialClass::printChar(const char chr,bool lf) {
-	
+
 		checkInitialization();
 		posixino.eraseDigitalOuts();
 
@@ -312,7 +312,7 @@
 	void SerialClass::printString(const char* str,bool lf) {
 
 		checkInitialization();
-		posixino.restoreDigitalOuts();
+		posixino.eraseDigitalOuts();
 
 		int len = strlen(str);
 		for (int n = 0; n < len; n++) printAtom(str[n]);
