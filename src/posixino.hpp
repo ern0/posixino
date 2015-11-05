@@ -155,12 +155,14 @@ typedef string String;
 class SerialClass;
 class LiquidCrystal;
 class EthernetServer;
+class Adafruit_NeoPixel;
 
 class Posixino {
 
 	friend SerialClass;
 	friend LiquidCrystal;
 	friend EthernetServer;
+	friend Adafruit_NeoPixel;
 
 	private:
     struct termios orig_term_attr;
@@ -361,5 +363,26 @@ class EthernetServer {
 
 }; // class EthernetServer
 
+
+class Adafruit_NeoPixel {
+
+	# define NEO_KHZ800 (0)
+	# define NEO_KHZ400 (0)
+	# define NEO_GRB (0)
+	# define NEO_RGB (0)
+	
+	private:
+		int numberOfPixels;
+		uint32_t* pixels;
+	
+	public:
+		Adafruit_NeoPixel(int numberOfPixels,int pin, int flags);
+		int numPixels();
+		void begin();
+		uint32_t Color(int r,int g,int b);
+		void setPixelColor(int numero,uint32_t color);
+		void show();
+	
+}; // class Adafruit_NeoPixel
 
 # endif

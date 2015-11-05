@@ -5,4 +5,5 @@
 #bin/serialdisplay
 #bin/webserver
 #bin/milan_autos
-bin/interrupt
+#bin/interrupt
+bin/strandtest

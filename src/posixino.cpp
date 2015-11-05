@@ -1023,4 +1023,39 @@
 	} // timerThread()
 
 
+// ----[ Adafruit_NeoPixel ]-------------------------------------------
+
+
+	Adafruit_NeoPixel::Adafruit_NeoPixel(int numOfPx,int pin, int flags) {
+		numberOfPixels = numOfPx;
+	} // Adafruit_NeoPixel() ctor
+
+
+	int Adafruit_NeoPixel::numPixels() {
+		return numberOfPixels;
+	} // numPixels()
+	
+
+	void Adafruit_NeoPixel::begin() {
+		pixels = (uint32_t*)malloc(numberOfPixels * sizeof(uint32_t));
+		for (int n = 0; n < numberOfPixels; n++) pixels[n] = 0;
+	} // begin()
+	
+	
+	uint32_t Adafruit_NeoPixel::Color(int r,int g,int b) {
+		return r << 16 | g << 8 | b; 
+	} // Color()
+	
+	
+	void Adafruit_NeoPixel::setPixelColor(int numero,uint32_t color) {
+		if ((numero < 0) || (numberOfPixels <= numero)) {
+			posixino.fatal("invalid pixel index",2);
+		}
+	} // setPixelColor()
+	
+	
+	void Adafruit_NeoPixel::show() {
+	} // show()
+
+
 // ----[ more to come... ]---------------------------------------------
