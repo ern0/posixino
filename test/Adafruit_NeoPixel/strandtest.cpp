@@ -1,4 +1,5 @@
 # if ( defined(__unix__) || defined(__APPLE__) )
+# define SDL_DISPLAY (0)
 # define LED_WIDTH (12)
 # define LED_HEIGHT (36)
 # define GAP_WIDTH (2)

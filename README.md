@@ -192,6 +192,39 @@ which is 1000 times longer than the real interrupts.
 Don't forget, timer interrupt emulation will
 be never as accurate as real timer interrupts.
 
+#### Adafruit NeoPixel LED strip ####
+
+Re-implemented Adafruit's LED strip/ring/whatever interface.
+If `SDL_DISPLAY` is defined 
+(use 0 for single monitor systems), 
+a borderless black window will appear on the screen
+with bars, which represents the leds.
+
+The size and padding of the bars can be defined,
+as well as window's gravity,
+but all parameters have carefully selected 
+default values,
+so only `SDL_DISPLAY` should be defined
+for displaying LED emulation.
+
+The following parameters can be given:
+```
+	# define LED_WIDTH (24)
+	# define GAP_WIDTH (4)
+
+	# define LED_HEIGHT (24)
+	# define GAP_HEIGHT (4)
+
+	// 0:left 1:center 2:right
+	# define WINDOW_X_POS (2)
+
+	// 0:top 1:middle 2:bottom
+	# define WINDOW_Y_POS (2)
+```
+
+When the number of LEDs is a square number,
+they will be arranged into a square shape.
+
 ### Plans ###
 
 - BSD support (a BSD buddy should help)

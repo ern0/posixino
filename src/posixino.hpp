@@ -4,8 +4,6 @@
 
 # define NO_OF_DIGI_OUTS (20)
 
-# define SDL_DISPLAY (0)
-
 # include <stdlib.h>
 # include <stdio.h>
 # include <unistd.h>
