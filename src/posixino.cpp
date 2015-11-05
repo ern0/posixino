@@ -83,6 +83,9 @@
 
 	void Posixino::cleanup() {
     tcsetattr(fileno(stdin),TCSANOW,&orig_term_attr);
+    # ifdef SDL_DISPLAY
+    SDL_Quit();
+    # endif
 	} // cleanup()
 
 
@@ -1027,7 +1030,15 @@
 
 
 	Adafruit_NeoPixel::Adafruit_NeoPixel(int numOfPx,int pin, int flags) {
+
+		# ifdef SDL_DISPLAY
+		sdlInitialized = false;
+		smallestError = 0;
+		biggestError = 0;
+		# endif
+
 		numberOfPixels = numOfPx;
+
 	} // Adafruit_NeoPixel() ctor
 
 
@@ -1048,14 +1059,168 @@
 	
 	
 	void Adafruit_NeoPixel::setPixelColor(int numero,uint32_t color) {
-		if ((numero < 0) || (numberOfPixels <= numero)) {
-			posixino.fatal("invalid pixel index",2);
-		}
+
+		if ((numero < 0) || (numero >= numberOfPixels)) {
+			bool report = false;
+			if (numero < smallestError) {
+				smallestError = numero;
+				report = true;
+			}
+			if (numero > biggestError) {
+				biggestError = numero;
+				report = true;
+			}
+			if (!report) return;
+			
+			posixino.printErrorPrefix();
+			fprintf(stderr,"invalid pixel index: %d \n",numero);
+
+		} // if error
+
+		pixels[numero] = color;
+
 	} // setPixelColor()
 	
 	
-	void Adafruit_NeoPixel::show() {
+	# ifndef SDL_DISPLAY
+	void Adafruit_NeoPixel::show() { 
+		
+		// TODO: some terminal magic
+		
 	} // show()
+	# endif
 
+
+// ---- SDL2 ----
+
+
+	# ifdef SDL_DISPLAY
+	void Adafruit_NeoPixel::show() {
+	
+		initializeSdl();
+		
+		int row = 0;
+		int col = 0;
+		int x = 0;
+		int y = GAP_HEIGHT;
+		for (int n = 0; n < numberOfPixels; n++) {
+			x += GAP_WIDTH;
+			
+			uint32_t rgb = pixels[n];
+			int r = rgb >> 16;
+			int g = rgb >> 8 & 0xff;
+			int b = rgb & 0xff;
+			
+			SDL_Rect rect;
+			rect.x = x;
+			rect.y = y;
+			rect.w = LED_WIDTH;
+			rect.h = LED_HEIGHT;
+			
+			SDL_FillRect(
+				screenSurface,
+				&rect, 
+				SDL_MapRGB(screenSurface->format,r,g,b)
+			);
+			
+			x += LED_WIDTH;
+			col++;
+			if (col >= ledsInRow) {
+				col = 0;
+				y += LED_HEIGHT + GAP_HEIGHT;
+				x = 0;
+			}
+
+		} // for pixels
+	
+		SDL_UpdateWindowSurface(window);
+		quitOnKey();
+			
+	} // show()	
+
+	
+	void Adafruit_NeoPixel::initializeSdl() {
+		
+		if (sdlInitialized) return;
+		sdlInitialized = true;
+		
+		if (SDL_Init(SDL_INIT_VIDEO) != 0) posixino.fatal("SDL init failed",3);
+
+		SDL_DisplayMode current;
+		SDL_GetCurrentDisplayMode(SDL_DISPLAY,&current);
+		
+		int maxLedsInRow = (current.w - GAP_WIDTH) / (LED_WIDTH + GAP_WIDTH);
+		do {
+			
+			ledsInRow = 0;
+			for (int n = 2; n <= 16; n++) {
+				if ((n * n) != numberOfPixels) continue;
+				ledsInRow = n;
+				break;
+			} // for squares
+			if (ledsInRow > 0) break;
+		
+			int maxRows = (current.h - GAP_HEIGHT) / (LED_HEIGHT + GAP_HEIGHT);
+			for (int row = 1; row <= maxRows; row++) {
+				if (numberOfPixels > row * maxLedsInRow) continue;
+				ledsInRow = numberOfPixels / row;
+				break;
+			}
+			if (ledsInRow == 0) posixino.fatal("pixels don't fit in screen",3);
+			
+		} while (false);
+		
+		int windowWidth = GAP_WIDTH * (1 + ledsInRow);
+		windowWidth += LED_WIDTH * ledsInRow;
+		int ledRows = numberOfPixels / ledsInRow;
+		if (numberOfPixels % ledsInRow > 0) ledRows++;
+		int windowHeight = GAP_HEIGHT * (1 + ledRows);
+		windowHeight += LED_HEIGHT * ledRows;
+		
+		int windowPosX = 0;
+		# if WINDOW_X_POS == 1
+		windowPosX = (current.w - windowWidth) / 2;
+		# endif
+		# if WINDOW_X_POS == 2
+		windowPosX = current.w - windowWidth;
+		# endif
+		
+		int windowPosY = 0;
+		# if WINDOW_Y_POS == 1
+		windowPosY = (current.h - windowHeight) / 2;
+		# endif
+		# if WINDOW_Y_POS == 2
+		windowPosY = current.h - windowHeight;
+		# endif
+		
+		window = SDL_CreateWindow(
+			"Posixino",
+			windowPosX,
+			windowPosY,
+			windowWidth,
+			windowHeight,
+			SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS
+		);		
+		
+		screenSurface = SDL_GetWindowSurface(window);
+		SDL_FillRect(screenSurface,NULL,0);
+		SDL_UpdateWindowSurface(window);
+	
+	} // initializeSdl()
+
+
+	void Adafruit_NeoPixel::quitOnKey() {
+
+		SDL_Event event;
+		if (!SDL_PollEvent(&event)) return;
+
+		switch (event.type) {
+    case SDL_KEYDOWN:    
+			quit(0);
+		}
+		
+	} // quitOnKey()
+	
+	# endif
 
 // ----[ more to come... ]---------------------------------------------

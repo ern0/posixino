@@ -9,5 +9,4 @@ mkdir -p bin
 #g++ test/Ethernet/WebServer.cpp -o bin/webserver
 #g++ test/milan_autos.cpp -o bin/milan_autos
 #g++ -std=c++11 -pthread test/interrupt.cpp -o bin/interrupt
-g++ -std=c++11 -pthread test/Adafruit_NeoPixel/strandtest.cpp -o bin/strandtest
-
+g++ -std=c++11 -pthread `sdl2-config --cflags --libs` test/Adafruit_NeoPixel/strandtest.cpp -o bin/strandtest -lSDL2

@@ -4,6 +4,7 @@
 
 # define NO_OF_DIGI_OUTS (20)
 
+# define SDL_DISPLAY (0)
 
 # include <stdlib.h>
 # include <stdio.h>
@@ -24,6 +25,10 @@
 # include <string>
 # include <thread>
 # include <mutex>
+
+# ifdef SDL_DISPLAY
+# include<SDL2/SDL.h>
+# endif
 
 using namespace std;
 
@@ -366,7 +371,28 @@ class EthernetServer {
 
 class Adafruit_NeoPixel {
 
-	# define NEO_KHZ800 (0)
+	# ifndef LED_WIDTH
+	# define LED_WIDTH (24)
+	# endif
+	# ifndef GAP_WIDTH
+	# define GAP_WIDTH (4)
+	# endif
+	# ifndef LED_HEIGHT
+	# define LED_HEIGHT (24)
+	# endif
+	# ifndef GAP_HEIGHT
+	# define GAP_HEIGHT (4)
+	# endif
+	# ifndef WINDOW_X_POS
+	// 0:left 1:center 2:right
+	# define WINDOW_X_POS (2)
+	# endif
+	# ifndef WINDOW_Y_POS
+	// 0:top 1:middle 2:bottom
+	# define WINDOW_Y_POS (2)
+	# endif
+
+ 	# define NEO_KHZ800 (0)
 	# define NEO_KHZ400 (0)
 	# define NEO_GRB (0)
 	# define NEO_RGB (0)
@@ -374,7 +400,7 @@ class Adafruit_NeoPixel {
 	private:
 		int numberOfPixels;
 		uint32_t* pixels;
-	
+		
 	public:
 		Adafruit_NeoPixel(int numberOfPixels,int pin, int flags);
 		int numPixels();
@@ -382,7 +408,24 @@ class Adafruit_NeoPixel {
 		uint32_t Color(int r,int g,int b);
 		void setPixelColor(int numero,uint32_t color);
 		void show();
+
+	# ifdef SDL_DISPLAY
+
+	private:
+		bool sdlInitialized;
+		SDL_Window* window;
+		SDL_Surface* screenSurface;
+		int ledsInRow;
+		int smallestError;
+		int biggestError;
+
+	protected:
+		void initializeSdl();
+		void quitOnKey();
+
+	# endif
 	
 }; // class Adafruit_NeoPixel
+
 
 # endif
