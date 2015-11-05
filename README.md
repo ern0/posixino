@@ -20,6 +20,7 @@ Check "coverage" section for actual state.
 Posixino is designed to produce CLI programs;
 serial output, digital out states, LCD display content etc.
 will appear on the console.
+LED strip emulation uses SDL2 library, but it's optional.
 
 Interrupt emulation is not 100% accurate yet,
 three timer interrupt routines can be set up
@@ -109,6 +110,7 @@ Here is the actual list of working examples:
 - `LiquidCrystal/HelloWorld` (LCD test)
 - `LiquidCrystal/Scroll` (LCD scroll)
 - `LiquidCrystal/SerialDisplay` (serial input)
+- `Adafruit_NeoPixel/strandtest` (LED strip)
 
 Minor Ethernet server concept issue implemented:
 `server.available()` returns a `client` object, 
@@ -194,18 +196,19 @@ be never as accurate as real timer interrupts.
 
 #### Adafruit NeoPixel LED strip ####
 
-Re-implemented Adafruit's LED strip/ring/whatever interface.
+Adafruit's LED strip/ring/whatever interface
+is re-implemented.
 If `SDL_DISPLAY` is defined 
 (use 0 for single monitor systems), 
 a borderless black window will appear on the screen
-with bars, which represents the leds.
+with bars, which represents the LEDs.
 
 The size and padding of the bars can be defined,
 as well as window's gravity,
 but all parameters have carefully selected 
 default values,
 so only `SDL_DISPLAY` should be defined
-for displaying LED emulation.
+for displaying the LED emulation.
 
 The following parameters can be given:
 ```
