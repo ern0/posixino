@@ -1,9 +1,9 @@
 # if ( defined(__unix__) || defined(__APPLE__) )
 # define SDL_DISPLAY (0)
-# define LED_WIDTH (12)
-# define LED_HEIGHT (36)
+# define LED_WIDTH (16)
+# define LED_HEIGHT (44)
 # define GAP_WIDTH (2)
-# define GAP_HEIGHT (0)
+# define GAP_HEIGHT (2)
 # include "../../src/posixino.cpp"
 # else
 #include <Adafruit_NeoPixel.h>

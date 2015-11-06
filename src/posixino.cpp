@@ -1174,6 +1174,11 @@
 		windowWidth += LED_WIDTH * ledsInRow;
 		int ledRows = numberOfPixels / ledsInRow;
 		if (numberOfPixels % ledsInRow > 0) ledRows++;
+		
+		ledsInRow -= ((ledRows * ledsInRow) - numberOfPixels) / ledRows;
+		windowWidth = GAP_WIDTH * (1 + ledsInRow);
+		windowWidth += LED_WIDTH * ledsInRow;
+		
 		int windowHeight = GAP_HEIGHT * (1 + ledRows);
 		windowHeight += LED_HEIGHT * ledRows;
 		
