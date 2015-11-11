@@ -383,7 +383,7 @@ class Adafruit_NeoPixel {
 	# endif
 	# ifndef WINDOW_X_POS
 	// 0:left 1:center 2:right
-	# define WINDOW_X_POS (2)
+	# define WINDOW_X_POS (0)
 	# endif
 	# ifndef WINDOW_Y_POS
 	// 0:top 1:middle 2:bottom
@@ -407,6 +407,10 @@ class Adafruit_NeoPixel {
 		void setPixelColor(int numero,uint32_t color);
 		void show();
 
+	private:
+		int smallestError;
+		int biggestError;
+
 	# ifdef SDL_DISPLAY
 
 	private:
@@ -414,8 +418,6 @@ class Adafruit_NeoPixel {
 		SDL_Window* window;
 		SDL_Surface* screenSurface;
 		int ledsInRow;
-		int smallestError;
-		int biggestError;
 
 	protected:
 		void initializeSdl();

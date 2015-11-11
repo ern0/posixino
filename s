@@ -1,4 +1,4 @@
-#bin/lcdhello
+bin/lcdhello
 #bin/webclient
 #bin/scroll
 #bin/asciitable
@@ -6,4 +6,4 @@
 #bin/webserver
 #bin/milan_autos
 #bin/interrupt
-bin/strandtest
+#bin/strandtest
