@@ -1053,9 +1053,19 @@
 	} // begin()
 	
 	
+	void Adafruit_NeoPixel::setBrightness(int v) {
+		// this method is intentionally left blank
+	} // setBrightness()
+	
+	
 	uint32_t Adafruit_NeoPixel::Color(int r,int g,int b) {
 		return r << 16 | g << 8 | b; 
 	} // Color()
+	
+	
+	void Adafruit_NeoPixel::setPixelColor(int numero,int r,int g,int b) {
+		setPixelColor(numero,Color(r,g,b));
+	} // setPixelColor()
 	
 	
 	void Adafruit_NeoPixel::setPixelColor(int numero,uint32_t color) {

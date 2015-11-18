@@ -403,8 +403,10 @@ class Adafruit_NeoPixel {
 		Adafruit_NeoPixel(int numberOfPixels,int pin, int flags);
 		int numPixels();
 		void begin();
+		void setBrightness(int v);
 		uint32_t Color(int r,int g,int b);
 		void setPixelColor(int numero,uint32_t color);
+		void setPixelColor(int numero,int r,int g,int b);
 		void show();
 
 	private:
