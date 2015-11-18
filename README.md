@@ -228,6 +228,9 @@ The following parameters can be given:
 When the number of LEDs is a square number,
 they will be arranged into a square shape.
 
+Known issue: false "does not fit on the screen"
+error when choosing UL corner.
+
 ### Plans ###
 
 - BSD support (a BSD buddy should help)
