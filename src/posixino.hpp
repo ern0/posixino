@@ -369,27 +369,6 @@ class EthernetServer {
 
 class Adafruit_NeoPixel {
 
-	# ifndef LED_WIDTH
-	# define LED_WIDTH (24)
-	# endif
-	# ifndef GAP_WIDTH
-	# define GAP_WIDTH (4)
-	# endif
-	# ifndef LED_HEIGHT
-	# define LED_HEIGHT (24)
-	# endif
-	# ifndef GAP_HEIGHT
-	# define GAP_HEIGHT (4)
-	# endif
-	# ifndef WINDOW_X_POS
-	// 0:left 1:center 2:right
-	# define WINDOW_X_POS (0)
-	# endif
-	# ifndef WINDOW_Y_POS
-	// 0:top 1:middle 2:bottom
-	# define WINDOW_Y_POS (2)
-	# endif
-
  	# define NEO_KHZ800 (0)
 	# define NEO_KHZ400 (0)
 	# define NEO_GRB (0)
@@ -419,11 +398,25 @@ class Adafruit_NeoPixel {
 		bool sdlInitialized;
 		SDL_Window* window;
 		SDL_Surface* screenSurface;
-		int ledsInRow;
+		struct {
+			int x;
+			int y;
+			int width;
+			int height;
+		} emuPixels;
 
 	protected:
 		void initializeSdl();
 		void quitOnKey();
+		void emuCheckPixelIndex(int i);
+		void emuPrepareDefaults();
+
+	public:
+		void emuDefineGridAnchor(const char* anchor);
+		void emuDefineGridHeight(int pixelHeight);
+		void emuDefinePixelPos(int i,int cellX,int cellY);
+		void emuDefinePixelSize(int i,int cellWidth,int cellHeight);
+		void emuDefinePixelGap(int i,int pixelVertical,int pixelHorizontal);
 
 	# endif
 	

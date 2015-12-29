@@ -1031,14 +1031,13 @@
 
 	Adafruit_NeoPixel::Adafruit_NeoPixel(int numOfPx,int pin, int flags) {
 
-		numberOfPixels = numOfPx;
-
 		# ifdef SDL_DISPLAY
 		sdlInitialized = false;
 		smallestError = 0;
 		biggestError = 0;
-		emuPrepareDefaults();
 		# endif
+
+		numberOfPixels = numOfPx;
 
 	} // Adafruit_NeoPixel() ctor
 
@@ -1103,91 +1102,30 @@
 
 
 // ---- SDL2 ----
+
+
 	# ifdef SDL_DISPLAY
-
-
-	void Adafruit_NeoPixel::emuPrepareDefaults() {
-		
-		// TODO: malloc struct
-		
-		emuDefineGridAnchor("southwest");
-		emuDefineGridHeight(8);
-		
-		for (int n = 0; n < numPixels(); n++) {
-			emuDefinePixelSize(n,3,1);
-			emuDefinePixelGap(n,1,0);
-		}
-		
-	} // emuPrepareDefaults()
-
-
-	void Adafruit_NeoPixel::emuDefineGridAnchor(const char* anchor) {
-	} // emuDefineGridAnchor()
-
-
-	void Adafruit_NeoPixel::emuDefineGridHeight(int height) {
-	} // emuDefineGridHeight()
-
-
-	void Adafruit_NeoPixel::emuCheckPixelIndex(int i) {
-	
-		do {
-			if (i < 0) break;
-			if (i > numPixels()) break;
-			return;
-		} while (false);
-		
-		posixino.printErrorPrefix();
-		fprintf(stderr,"invalid pixel index: %d \n",i);
-		exit(1);
-		
-	} // emuCheckPixelIndex()
-
-
-	void Adafruit_NeoPixel::emuDefinePixelPos(int i,int x,int y) {
-		emuCheckPixelIndex(i);
-
-
-	} // emuDefinePixelPos()
-	
-
-	void Adafruit_NeoPixel::emuDefinePixelSize(int i,int width,int height) {
-		emuCheckPixelIndex(i);
-		
-		
-		
-	} // emuDefinePixelSize()
-	
-	
-	void Adafruit_NeoPixel::emuDefinePixelGap(int i,int horizontal,int vertical) {
-		emuCheckPixelIndex(i);
-		
-		
-	} // emuDefinePixelGap()
-	
-
 	void Adafruit_NeoPixel::show() {
 	
 		initializeSdl();
 		
+		int row = 0;
+		int col = 0;
+		int x = 0;
+		int y = GAP_HEIGHT;
 		for (int n = 0; n < numberOfPixels; n++) {
+			x += GAP_WIDTH;
 			
 			uint32_t rgb = pixels[n];
 			int r = rgb >> 16;
 			int g = rgb >> 8 & 0xff;
 			int b = rgb & 0xff;
-
-			// TODO: get x,y,w,h
-			int x = 0;
-			int y = 0;
-			int w = 8;
-			int h = 8;
 			
 			SDL_Rect rect;
 			rect.x = x;
 			rect.y = y;
-			rect.w = w;
-			rect.h = h;
+			rect.w = LED_WIDTH;
+			rect.h = LED_HEIGHT;
 			
 			SDL_FillRect(
 				screenSurface,
@@ -1195,6 +1133,14 @@
 				SDL_MapRGB(screenSurface->format,r,g,b)
 			);
 			
+			x += LED_WIDTH;
+			col++;
+			if (col >= ledsInRow) {
+				col = 0;
+				y += LED_HEIGHT + GAP_HEIGHT;
+				x = 0;
+			}
+
 		} // for pixels
 	
 		SDL_UpdateWindowSurface(window);
@@ -1212,12 +1158,55 @@
 
 		SDL_DisplayMode current;
 		SDL_GetCurrentDisplayMode(SDL_DISPLAY,&current);
-
-		// TODO: set window size and pos
+		
+		int maxLedsInRow = (current.w - GAP_WIDTH) / (LED_WIDTH + GAP_WIDTH);
+		do {
+			
+			ledsInRow = 0;
+			for (int n = 2; n <= 16; n++) {
+				if ((n * n) != numberOfPixels) continue;
+				ledsInRow = n;
+				break;
+			} // for squares
+			if (ledsInRow > 0) break;
+		
+			int maxRows = (current.h - GAP_HEIGHT) / (LED_HEIGHT + GAP_HEIGHT);
+			for (int row = 1; row <= maxRows; row++) {
+				if (numberOfPixels > row * maxLedsInRow) continue;
+				ledsInRow = numberOfPixels / row;
+				break;
+			}
+			if (ledsInRow == 0) posixino.fatal("pixels don't fit in screen",3);
+			
+		} while (false);
+		
+		int windowWidth = GAP_WIDTH * (1 + ledsInRow);
+		windowWidth += LED_WIDTH * ledsInRow;
+		int ledRows = numberOfPixels / ledsInRow;
+		if (numberOfPixels % ledsInRow > 0) ledRows++;
+		
+		ledsInRow -= ((ledRows * ledsInRow) - numberOfPixels) / ledRows;
+		windowWidth = GAP_WIDTH * (1 + ledsInRow);
+		windowWidth += LED_WIDTH * ledsInRow;
+		
+		int windowHeight = GAP_HEIGHT * (1 + ledRows);
+		windowHeight += LED_HEIGHT * ledRows;
+		
 		int windowPosX = 0;
+		# if WINDOW_X_POS == 1
+		windowPosX = (current.w - windowWidth) / 2;
+		# endif
+		# if WINDOW_X_POS == 2
+		windowPosX = current.w - windowWidth;
+		# endif
+		
 		int windowPosY = 0;
-		int windowWidth = 320;
-		int windowHeight = 240;
+		# if WINDOW_Y_POS == 1
+		windowPosY = (current.h - windowHeight) / 2;
+		# endif
+		# if WINDOW_Y_POS == 2
+		windowPosY = current.h - windowHeight;
+		# endif
 		
 		window = SDL_CreateWindow(
 			"Posixino",
