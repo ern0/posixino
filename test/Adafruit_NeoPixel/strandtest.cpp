@@ -33,11 +33,11 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 void setup() {
 
 	# ifdef SDL_DISPLAY
-	strip.emuSetGridScreenAnchor("northwest");
-	strip.emuSetGridScreenPercent(50);
-	strip.emuSetGridCells(8,8);
+	strip.emuSetGridScreenAnchor("ne");
+	strip.emuSetGridScreenPercent(20);
+	strip.emuSetGridCells(16,4);
 	for (int n = 0; n < strip.numPixels(); n++ ) {
-		strip.emuSetPixelPos(n,n % 8,n / 8);
+		strip.emuSetPixelPos(n,n % 16,n / 16);
 		strip.emuSetPixelCellSize(n,1,1);
 		strip.emuSetPixelPixGap(n,2,2);
 	} // for pixel

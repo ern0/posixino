@@ -1320,7 +1320,7 @@
 			int top = epix.parmGapVert / 2;
 			int bottom = epix.parmGapVert % 2 + top;
 			epix.y += top;
-			epix.width -= bottom;
+			epix.height -= bottom;
 		
 		} // for pixels
 		

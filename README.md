@@ -196,40 +196,71 @@ be never as accurate as real timer interrupts.
 
 #### Adafruit NeoPixel LED strip ####
 
-Adafruit's LED strip/ring/whatever interface
-is re-implemented.
-If `SDL_DISPLAY` is defined 
-(use 0 for single monitor systems), 
-a borderless black window will appear on the screen
-with bars, which represents the LEDs.
+Adafruit's LED strip/ring/whatever is now supported.
+When you define `SDL_DISPLAY` 
+(use 0 for single monitor systems),
+a borderless black overlay will appear on the screen 
+with bars representing the LEDs.
 
-The size and padding of the bars can be defined,
-as well as window's gravity,
-but all parameters have carefully selected 
-default values,
-so only `SDL_DISPLAY` should be defined
-for displaying the LED emulation.
+By default, 
+the overlay will appear 
+on the bottom left part of the screen
+with a single row of bars 
+representing leds. 
 
-The following parameters can be given:
+Some extra methods added to `Adafruit_NeoPixel` class
+for setting the size and position of the overlay.
+There are also methods for setting position and size 
+of the individual pixels.
+The overlay setup code should be placed into the
+`setup()` function, see example below.
+
+`strip.emuSetGridScreenAnchor()` 
+defines the position of the overlay: 
+"north", "northeast" etc.
+Short forms can be also used, e.g. "n", "ne" etc.
+
+`strip.emuSetGridScreenPercent()`
+defines the percentage of the shortest side
+of the overlay relative to the screen size.
+It just a hint, the actual size should be smaller
+in order to fit on the screen.
+
+`strip.emuSetGridCells()`
+defines the number of columns and rows
+of the grid. 
+It should be greater or equal to the
+number of pixels defined in
+`Adafruit_NeoPixel()` method.
+
+Pixel parameters can be set with
+`emuSetPixelPos()` - cell position (column, row),
+`emuSetPixelCellSize()` - cell size (column, row),
+and 
+`emuSetPixelGap()` - size of cell gap in pixels. 
+
 ```
-	# define LED_WIDTH (24)
-	# define GAP_WIDTH (4)
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 
-	# define LED_HEIGHT (24)
-	# define GAP_HEIGHT (4)
+void setup() {
 
-	// 0:left 1:center 2:right
-	# define WINDOW_X_POS (2)
+	# ifdef SDL_DISPLAY
 
-	// 0:top 1:middle 2:bottom
-	# define WINDOW_Y_POS (2)
+	strip.emuSetGridScreenAnchor("ne");
+	strip.emuSetGridScreenPercent(20);
+	strip.emuSetGridCells(16,4);
+
+	for (int n = 0; n < strip.numPixels(); n++ ) {
+
+		strip.emuSetPixelPos(n,n % 16,n / 16);
+		strip.emuSetPixelCellSize(n,1,1);
+		strip.emuSetPixelPixGap(n,2,2);
+
+	} // for pixel
+
+	# endif
 ```
 
-When the number of LEDs is a square number,
-they will be arranged into a square shape.
-
-Known issue: false "does not fit on the screen"
-error when choosing UL corner.
 
 ### Plans ###
 
