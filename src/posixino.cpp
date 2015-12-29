@@ -1223,7 +1223,7 @@
 
 	void Adafruit_NeoPixel::calcDims() {
 	
-		bool debug = true;
+		bool debug = false;
 
 		if (debug) printf("params \n");
 		if (debug) printf(" screen w=%d h=%d \n",current.w,current.h);

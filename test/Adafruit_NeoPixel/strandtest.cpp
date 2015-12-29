@@ -23,7 +23,7 @@ uint32_t Wheel(byte WheelPos);
 //   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(24 + 12, PIN, NEO_GRB + NEO_KHZ800);
 
 // IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
 // pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
@@ -33,14 +33,73 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 void setup() {
 
 	# ifdef SDL_DISPLAY
-	strip.emuSetGridScreenAnchor("ne");
-	strip.emuSetGridScreenPercent(20);
-	strip.emuSetGridCells(16,4);
-	for (int n = 0; n < strip.numPixels(); n++ ) {
-		strip.emuSetPixelPos(n,n % 16,n / 16);
-		strip.emuSetPixelCellSize(n,1,1);
-		strip.emuSetPixelPixGap(n,2,2);
-	} // for pixel
+	
+	if (true) {  // clock
+
+		strip.emuSetGridScreenAnchor("center");
+		strip.emuSetGridScreenPercent(50);
+		strip.emuSetGridCells(36,36);
+		
+		int n = 0;
+		
+		strip.emuSetPixelPos(n++,16,0);
+		strip.emuSetPixelPos(n++,20,1);
+		strip.emuSetPixelPos(n++,24,2);
+		strip.emuSetPixelPos(n++,28,4);
+		strip.emuSetPixelPos(n++,30,8);
+		strip.emuSetPixelPos(n++,31,12);
+		strip.emuSetPixelPos(n++,32,16);
+		strip.emuSetPixelPos(n++,31,20);
+		strip.emuSetPixelPos(n++,30,24);
+		strip.emuSetPixelPos(n++,28,28);
+		strip.emuSetPixelPos(n++,24,30);
+		strip.emuSetPixelPos(n++,20,31);
+		strip.emuSetPixelPos(n++,16,32);
+		strip.emuSetPixelPos(n++,12,31);
+		strip.emuSetPixelPos(n++,8,30);
+		strip.emuSetPixelPos(n++,4,28);
+		strip.emuSetPixelPos(n++,2,24);
+		strip.emuSetPixelPos(n++,1,20);
+		strip.emuSetPixelPos(n++,0,16);
+		strip.emuSetPixelPos(n++,1,12);
+		strip.emuSetPixelPos(n++,2,8);
+		strip.emuSetPixelPos(n++,4,4);
+		strip.emuSetPixelPos(n++,8,2);
+		strip.emuSetPixelPos(n++,12,1);
+		
+		strip.emuSetPixelPos(n++,16,6);
+		strip.emuSetPixelPos(n++,21,7);
+		strip.emuSetPixelPos(n++,25,11);
+		strip.emuSetPixelPos(n++,26,16);
+		strip.emuSetPixelPos(n++,25,21);
+		strip.emuSetPixelPos(n++,21,25);
+		strip.emuSetPixelPos(n++,16,26);
+		strip.emuSetPixelPos(n++,11,25);
+		strip.emuSetPixelPos(n++,7,21);
+		strip.emuSetPixelPos(n++,6,16);
+		strip.emuSetPixelPos(n++,7,11);
+		strip.emuSetPixelPos(n++,11,7);
+
+		for (int n = 0; n < strip.numPixels(); n++ ) {
+			strip.emuSetPixelCellSize(n,4,4);
+			strip.emuSetPixelPixGap(n,5,5);
+		}
+	
+	} // if clock
+	
+	else {  // square
+	
+		strip.emuSetGridScreenAnchor("ne");
+		strip.emuSetGridScreenPercent(20);
+		strip.emuSetGridCells(12,3);
+		for (int n = 0; n < strip.numPixels(); n++ ) {
+			strip.emuSetPixelPos(n,n % 12,n / 12);
+			strip.emuSetPixelCellSize(n,1,1);
+			strip.emuSetPixelPixGap(n,2,2);
+		} // for pixel
+	
+	} // else square
+	
 	# endif
 
   strip.begin();
