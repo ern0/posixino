@@ -1034,10 +1034,17 @@
 		numberOfPixels = numOfPx;
 
 		# ifdef SDL_DISPLAY
+
+		emuPixels = new EmuPixel[numOfPx]; 
+		emuSetGridScreenAnchor("southwest");
+		emuSetGridScreenPercent(8);
+		emuSetGridCells(numOfPx,1);
+		for (int n = 0; n < numOfPx; n++) emuSetPixelPos(n,n,0);
+		
 		sdlInitialized = false;
 		smallestError = 0;
 		biggestError = 0;
-		emuPrepareDefaults();
+
 		# endif
 
 	} // Adafruit_NeoPixel() ctor
@@ -1106,29 +1113,22 @@
 	# ifdef SDL_DISPLAY
 
 
-	void Adafruit_NeoPixel::emuPrepareDefaults() {
-		
-		// TODO: malloc struct
-		
-		emuDefineGridAnchor("southwest");
-		emuDefineGridHeight(8);
-		
-		for (int n = 0; n < numPixels(); n++) {
-			emuDefinePixelSize(n,3,1);
-			emuDefinePixelGap(n,1,0);
-		}
-		
-	} // emuPrepareDefaults()
+	void Adafruit_NeoPixel::emuSetGridScreenAnchor(const char* anchor) {
+		gridAnchor = anchor;
+	} // emuSetGridScreenAnchor()
 
 
-	void Adafruit_NeoPixel::emuDefineGridAnchor(const char* anchor) {
-	} // emuDefineGridAnchor()
-
-
-	void Adafruit_NeoPixel::emuDefineGridHeight(int height) {
-	} // emuDefineGridHeight()
-
-
+	void Adafruit_NeoPixel::emuSetGridScreenPercent(int percent) {
+		gridPercent = percent;
+	} // emuSetGridScreenPercent()
+	
+	
+	void Adafruit_NeoPixel::emuSetGridCells(int cols,int rows) {
+		gridCellCols = cols;
+		gridCellRows = rows;
+	} // emuSetGridCells()
+	
+	
 	void Adafruit_NeoPixel::emuCheckPixelIndex(int i) {
 	
 		do {
@@ -1142,28 +1142,24 @@
 		exit(1);
 		
 	} // emuCheckPixelIndex()
-
-
-	void Adafruit_NeoPixel::emuDefinePixelPos(int i,int x,int y) {
-		emuCheckPixelIndex(i);
-
-
-	} // emuDefinePixelPos()
-	
-
-	void Adafruit_NeoPixel::emuDefinePixelSize(int i,int width,int height) {
-		emuCheckPixelIndex(i);
-		
-		
-		
-	} // emuDefinePixelSize()
 	
 	
-	void Adafruit_NeoPixel::emuDefinePixelGap(int i,int horizontal,int vertical) {
+	void Adafruit_NeoPixel::emuSetPixelPos(int i,int x,int y) {
 		emuCheckPixelIndex(i);
-		
-		
-	} // emuDefinePixelGap()
+		emuPixels[i].setPos(x,y);
+	} // emuSetPixelPos()
+	
+
+	void Adafruit_NeoPixel::emuSetPixelCellSize(int i,int width,int height) {
+		emuCheckPixelIndex(i);
+		emuPixels[i].setSize(width,height);
+	} // emuSetPixelSize()
+	
+	
+	void Adafruit_NeoPixel::emuSetPixelPixGap(int i,int horizontal,int vertical) {
+		emuCheckPixelIndex(i);
+		emuPixels[i].setGap(horizontal,vertical);
+	} // emuSetPixelPixGap()
 	
 
 	void Adafruit_NeoPixel::show() {
@@ -1171,23 +1167,18 @@
 		initializeSdl();
 		
 		for (int n = 0; n < numberOfPixels; n++) {
+			EmuPixel& epix = emuPixels[n];
 			
 			uint32_t rgb = pixels[n];
 			int r = rgb >> 16;
 			int g = rgb >> 8 & 0xff;
 			int b = rgb & 0xff;
 
-			// TODO: get x,y,w,h
-			int x = 0;
-			int y = 0;
-			int w = 8;
-			int h = 8;
-			
 			SDL_Rect rect;
-			rect.x = x;
-			rect.y = y;
-			rect.w = w;
-			rect.h = h;
+			rect.x = epix.x;
+			rect.y = epix.y;
+			rect.w = epix.width;
+			rect.h = epix.height;
 			
 			SDL_FillRect(
 				screenSurface,
@@ -1210,15 +1201,10 @@
 		
 		if (SDL_Init(SDL_INIT_VIDEO) != 0) posixino.fatal("SDL init failed",3);
 
-		SDL_DisplayMode current;
 		SDL_GetCurrentDisplayMode(SDL_DISPLAY,&current);
-
-		// TODO: set window size and pos
-		int windowPosX = 0;
-		int windowPosY = 0;
-		int windowWidth = 320;
-		int windowHeight = 240;
 		
+		calcDims();
+
 		window = SDL_CreateWindow(
 			"Posixino",
 			windowPosX,
@@ -1235,6 +1221,112 @@
 	} // initializeSdl()
 
 
+	void Adafruit_NeoPixel::calcDims() {
+	
+		bool debug = true;
+
+		if (debug) printf("params \n");
+		if (debug) printf(" screen w=%d h=%d \n",current.w,current.h);
+		if (debug) printf(" grid percent=%d \n",gridPercent);
+		if (debug) printf(" grid cols=%d rows=%d \n",gridCellCols,gridCellRows);
+
+		if (debug) printf("calc \n");
+	
+		int cellSizeByWidth = (current.w * gridPercent / 100) / gridCellCols;
+		int cellSizeByHeight = (current.h * gridPercent / 100) / gridCellRows ;
+		int cellSizeSel = ( cellSizeByWidth > cellSizeByHeight ? cellSizeByWidth : cellSizeByHeight );
+		
+		windowWidth = gridCellCols * cellSizeSel;
+		windowHeight = gridCellRows * cellSizeSel;
+		cellWidth = cellSizeSel;
+		cellHeight = cellSizeSel;
+		if (windowWidth > current.w) cellWidth = current.w / gridCellCols;
+		if (windowHeight > current.h) cellHeight = current.h / gridCellRows;
+		if (cellWidth > 2 * cellHeight) cellWidth = 2 * cellHeight;
+		if (cellHeight > 2 * cellWidth) cellHeight = 2 * cellWidth;
+		windowWidth = gridCellCols * cellWidth;
+		windowHeight = gridCellRows * cellHeight;
+	
+		if (debug) printf(" cell_size by_width=%d by_height=%d selected=%d \n",cellSizeByWidth,cellSizeByHeight,cellSizeSel);
+		if (debug) printf(" cell_adjusted_size width=%d height=%d \n",cellWidth,cellHeight);
+
+		char horiz = 'C';
+		char vert = 'M';
+		if (strcasestr(gridAnchor,"west") != NULL) horiz = 'L';
+		if (strcasestr(gridAnchor,"east") != NULL) horiz = 'R';
+		if (strcasestr(gridAnchor,"north") != NULL) vert = 'T';
+		if (strcasestr(gridAnchor,"south") != NULL) vert = 'B';
+		if (strcasecmp(gridAnchor,"w") == 0) horiz = 'L';
+		if (strcasecmp(gridAnchor,"e") == 0) horiz = 'R';
+		if (strcasecmp(gridAnchor,"n") == 0) vert = 'T';
+		if (strcasecmp(gridAnchor,"s") == 0) vert = 'B';
+		if (strcasecmp(gridAnchor,"nw") == 0) {
+			horiz = 'L';
+			vert = 'T';
+		}
+		if (strcasecmp(gridAnchor,"ne") == 0) {
+			horiz = 'R';
+			vert = 'T';
+		}
+		if (strcasecmp(gridAnchor,"sw") == 0) {
+			horiz = 'L';
+			vert = 'B';
+		}
+		if (strcasecmp(gridAnchor,"se") == 0) {
+			horiz = 'R';
+			vert = 'B';
+		}
+		if (debug) printf(" anchor param=%s horiz=%c vert=%C \n",gridAnchor,horiz,vert);
+
+		switch (horiz) {
+		case 'L':
+			windowPosX = 0;
+			break;
+		case 'C':
+			windowPosX = (current.w - windowWidth) / 2;
+			break;
+		case 'R':
+			windowPosX = current.w - windowWidth;
+			break;
+		}
+
+		switch (vert) {
+		case 'T':
+			windowPosY = 0;
+			break;
+		case 'M':
+			windowPosY = (current.h - windowHeight) / 2;
+			break;
+		case 'B':
+			windowPosY = current.h - windowHeight;
+			break;
+		}
+	
+		if (debug) printf("result \n");
+		if (debug) printf(" window x=%d y=%d w=%d h=%d \n",windowPosX,windowPosY,windowWidth,windowHeight);
+		
+		for (int n = 0; n < numberOfPixels; n++) {
+			EmuPixel& epix = emuPixels[n];
+			
+			epix.x = epix.parmX * cellWidth;
+			epix.width = epix.parmWidth * cellWidth;
+			int left = epix.parmGapHoriz / 2;
+			int right = epix.parmGapHoriz % 2 + left;
+			epix.x += left;
+			epix.width -= right;
+			
+			epix.y = epix.parmY * cellHeight;
+			epix.height = epix.parmHeight * cellHeight;
+			int top = epix.parmGapVert / 2;
+			int bottom = epix.parmGapVert % 2 + top;
+			epix.y += top;
+			epix.width -= bottom;
+		
+		} // for pixels
+		
+	} // calcDims()
+
+
 	void Adafruit_NeoPixel::quitOnKey() {
 
 		SDL_Event event;
@@ -1246,7 +1338,33 @@
 		}
 		
 	} // quitOnKey()
+
+
+	EmuPixel::EmuPixel() {
+		setPos(0,0);
+		setSize(1,1);
+		setGap(1,1);
+	} // EmuPixel() ctor
 	
+	
+	void EmuPixel::setPos(int x,int y) {
+		parmX = x;
+		parmY = y;
+	} // setPos()
+	
+	
+	void EmuPixel::setSize(int w,int h) {
+		parmWidth = w;
+		parmHeight = h;
+	} // setSize()
+	
+	
+	void EmuPixel::setGap(int h,int v) {
+		parmGapHoriz = h;
+		parmGapVert = v;
+	} // setGap()
+	
+
 	# endif
 
 // ----[ more to come... ]---------------------------------------------

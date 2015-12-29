@@ -367,6 +367,36 @@ class EthernetServer {
 }; // class EthernetServer
 
 
+# ifdef SDL_DISPLAY
+class EmuPixel {
+
+	public:
+		int parmX;
+		int parmY;
+		int parmWidth;
+		int parmHeight;
+		int parmGapHoriz;
+		int parmGapVert;
+		int x;
+		int y;
+		int width;
+		int height;
+
+	public:
+		static void setGridScreenAnchor(const char* anchor);
+		static void setGridScreenPercent(int height);
+		static void setGridCells(int w,int h);
+
+	public:
+		EmuPixel();
+		void setPos(int x,int y);
+		void setSize(int w,int h);
+		void setGap(int h,int v);
+
+}; // class EmuPixel
+# endif
+
+
 class Adafruit_NeoPixel {
 
  	# define NEO_KHZ800 (0)
@@ -398,25 +428,34 @@ class Adafruit_NeoPixel {
 		bool sdlInitialized;
 		SDL_Window* window;
 		SDL_Surface* screenSurface;
-		struct {
-			int x;
-			int y;
-			int width;
-			int height;
-		} emuPixels;
+		EmuPixel* emuPixels;
+
+		const char* gridAnchor;
+		int gridCellCols;
+		int gridCellRows;
+		int gridPercent;
+		SDL_DisplayMode current;
+		int windowPosX;
+		int windowPosY;
+		int windowWidth;
+		int windowHeight;		
+		int cellWidth;
+		int cellHeight;
 
 	protected:
 		void initializeSdl();
+		void calcDims();
 		void quitOnKey();
 		void emuCheckPixelIndex(int i);
-		void emuPrepareDefaults();
+		void emuUpdatePixel(int i);
 
 	public:
-		void emuDefineGridAnchor(const char* anchor);
-		void emuDefineGridHeight(int pixelHeight);
-		void emuDefinePixelPos(int i,int cellX,int cellY);
-		void emuDefinePixelSize(int i,int cellWidth,int cellHeight);
-		void emuDefinePixelGap(int i,int pixelVertical,int pixelHorizontal);
+		void emuSetGridCells(int cols,int rows);
+		void emuSetGridScreenAnchor(const char* a);
+		void emuSetGridScreenPercent(int p);
+		void emuSetPixelPos(int i,int cellX,int cellY);
+		void emuSetPixelCellSize(int i,int cellWidth,int cellHeight);
+		void emuSetPixelPixGap(int i,int pixelVertical,int pixelHorizontal);
 
 	# endif
 	

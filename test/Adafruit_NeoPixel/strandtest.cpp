@@ -23,7 +23,7 @@ uint32_t Wheel(byte WheelPos);
 //   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(64, PIN, NEO_GRB + NEO_KHZ800);
 
 // IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
 // pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
@@ -33,12 +33,13 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
 void setup() {
 
 	# ifdef SDL_DISPLAY
-	strip.emuDefineGridAnchor("northwest");
-	strip.emuDefineGridHeight(80);
+	strip.emuSetGridScreenAnchor("northwest");
+	strip.emuSetGridScreenPercent(50);
+	strip.emuSetGridCells(8,8);
 	for (int n = 0; n < strip.numPixels(); n++ ) {
-		strip.emuDefinePixelPos(n,0,n);
-		strip.emuDefinePixelSize(n,1,3);
-		strip.emuDefinePixelGap(n,2,0);
+		strip.emuSetPixelPos(n,n % 8,n / 8);
+		strip.emuSetPixelCellSize(n,1,1);
+		strip.emuSetPixelPixGap(n,2,2);
 	} // for pixel
 	# endif
 
