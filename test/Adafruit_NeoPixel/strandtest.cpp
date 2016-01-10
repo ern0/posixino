@@ -37,7 +37,7 @@ void setup() {
 	if (true) {  // clock
 
 		strip.emuSetGridScreenAnchor("se");
-		strip.emuSetGridScreenPercent(30);
+		strip.emuSetGridScreenPercent(40);
 		strip.emuSetGridCells(36,36);
 		
 		int n = 0;
