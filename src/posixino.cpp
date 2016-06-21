@@ -853,7 +853,7 @@
 		int retry = 0;
 		while (true) {
 
-			if (bind(fd,(struct sockaddr*)&servaddr,sizeof(servaddr)) == -1) {
+			if (::bind(fd,(struct sockaddr*)&servaddr,sizeof(servaddr)) == -1) {
 
 				if (errno == EADDRINUSE) {
 					if (retry == 0) {
