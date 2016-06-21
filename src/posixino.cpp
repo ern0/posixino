@@ -575,11 +575,13 @@
 
 	bool EthernetClass::begin(byte mac[6],IPAddress& ip) {
 		// this method is officially left blank		
+		return true;
 	} // begin()
 
 
 	bool EthernetClass::begin(byte mac[6],byte ip[4]) {
-		// this method is officially left blank		
+		// this method is officially left blank	
+		return true;	
 	} // begin()
 	
 
@@ -1276,7 +1278,7 @@
 			horiz = 'R';
 			vert = 'B';
 		}
-		if (debug) printf(" anchor param=%s horiz=%c vert=%C \n",gridAnchor,horiz,vert);
+		if (debug) printf(" anchor param=%s horiz=%c vert=%c \n",gridAnchor,horiz,vert);
 
 		switch (horiz) {
 		case 'L':
