@@ -1267,7 +1267,7 @@
 		if (strcasecmp(gridAnchor,"ne") == 0) {
 			horiz = 'R';
 			vert = 'T';
-		}
+		} 
 		if (strcasecmp(gridAnchor,"sw") == 0) {
 			horiz = 'L';
 			vert = 'B';
