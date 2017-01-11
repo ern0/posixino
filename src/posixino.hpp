@@ -1,8 +1,28 @@
-# ifndef _posixino
-# define _posixino
+/* ********************************************************************** */
 
+// You can use this for separating embedded and desktop code:
+// # ifdef POSIXINO
+// printf("debug: %d \n",whatever)
+// # endif
+//
+# ifndef POSIXINO
+# define POSIXINO
 
+// This is the number of dots printed to screen
+// You may redefine it in your program
+//
 # define NO_OF_DIGI_OUTS (20)
+
+// Just simply define this in your program
+// for displaying RGB pixels with SDL library
+//
+# undef SDL_DISPLAY
+
+// Timer interrupt emulation requires std::thread, 
+// so use -std=c++11 compiler option
+
+
+/* ********************************************************************** */
 
 # include <stdlib.h>
 # include <stdio.h>
@@ -31,7 +51,7 @@
 using namespace std;
 
 
-// Mac OS X hack
+// MacOS hack
 
 # ifndef MSG_NOSIGNAL
 # define MSG_NOSIGNAL (0)
@@ -236,6 +256,7 @@ class SerialClass {
 		void print(const char* str);
 		void println();
 		void println(const char* str);
+		void printf(char* fmt, ...);
 		void write(char chr);
 		int available();
 		char read();
@@ -394,7 +415,7 @@ class EmuPixel {
 		void setSize(int w,int h);
 		void setGap(int h,int v);
 
-}; // class EmuPixel
+	}; // class EmuPixel
 # endif
 
 

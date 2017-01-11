@@ -1,4 +1,7 @@
 # include "posixino.hpp"
+/* ********************************************************************** */
+/* see posixino.hpp for some instructions                                 */
+/* ********************************************************************** */
 
 
 // ----[ Set up Unix environment ]-------------------------------------
@@ -285,9 +288,9 @@
 
 	void SerialClass::printAtom(const char chr) {
 	
-		if (posx == 0) printf("SER|");
+		if (posx == 0) ::printf((char*)"SER|");
 		
-		printf("%c",chr);
+		::printf((char*)"%c",chr);
 		fflush(stdout);
 		
 		if (chr == 0x0a) {
@@ -390,6 +393,18 @@
 	void SerialClass::println(int val,int radix) {
 		printNum(val,radix,true);
 	} // println(int,int)
+
+
+	void SerialClass::printf(char* fmt, ...) {
+		char buffer[4096];
+
+    va_list args;
+    va_start(args,fmt);
+    vsprintf(buffer,fmt,args);
+    printString(buffer,false);
+    va_end(args);
+
+	} // printf()
 
 
 	void SerialClass::write(char chr) {
