@@ -34,7 +34,7 @@ void setup() {
 
 	# ifdef SDL_DISPLAY
 	
-	if (true) {  // clock
+	if (false) {  // clock
 
 		strip.emuSetGridScreenAnchor("se");
 		strip.emuSetGridScreenPercent(40);
@@ -90,7 +90,7 @@ void setup() {
 	else {  // square
 	
 		strip.emuSetGridScreenAnchor("ne");
-		strip.emuSetGridScreenPercent(20);
+		strip.emuSetGridScreenPercent(30);
 		strip.emuSetGridCells(12,3);
 		for (int n = 0; n < strip.numPixels(); n++ ) {
 			strip.emuSetPixelPos(n,n % 12,n / 12);
