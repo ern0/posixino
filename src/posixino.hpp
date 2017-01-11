@@ -256,6 +256,7 @@ class SerialClass {
 		void print(const char* str);
 		void println();
 		void println(const char* str);
+		void printf(char* fmt, ...);
 		void write(char chr);
 		int available();
 		char read();
