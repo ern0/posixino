@@ -51,6 +51,13 @@
 using namespace std;
 
 
+// Access to args and Posixino object
+class Posixino;
+extern Posixino posixino;
+extern int argc;
+extern char** argv;
+
+
 // MacOS hack
 
 # ifndef MSG_NOSIGNAL
@@ -60,7 +67,7 @@ using namespace std;
 
 // Unix functions
 
-int main();
+int main(int argc,char* argv[]);
 void quit(int sig);
 void cleanup();
 

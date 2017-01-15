@@ -7,14 +7,18 @@
 // ----[ Set up Unix environment ]-------------------------------------
 
 	Posixino posixino;
+	int argc;
+	char** argv;
 
 
-	int main() {
-
+	int main(int pargc,char* pargv[]) {
+ 
 		atexit(cleanup);
 		signal(SIGINT,quit);
-		
+
 		posixino.init();
+		argc = pargc;
+		argv = pargv;
 		setup();
 		# ifdef __TIMER_USED
 			posixino.setupTimerIntervals();
@@ -39,8 +43,7 @@
 
 	void cleanup() {
 		posixino.cleanup();
-	} // cleanup()
-	
+	} // cleanup()	
 
 // ----[ Global API functions mappings to the singleton ]--------------
 
