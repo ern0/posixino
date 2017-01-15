@@ -135,6 +135,30 @@
 	} // readKey
 
 
+// ----[ Timer interrupt globals ]-------------------------------------
+
+	void TIMER0_COMPA_vect();
+	void TIMER1_COMPA_vect();
+	void TIMER2_COMPA_vect();
+
+	int TCCR0A = -1;
+	int TCCR0B = -1;
+	int TCNT0  = -1;
+	int OCR0A = -1;
+	int TIMSK0 = -1;
+
+	int TCCR1A = -1;
+	int TCCR1B = -1;
+	int TCNT1  = -1;
+	int OCR1A = -1;
+	int TIMSK1 = -1;
+
+	int TCCR2A = -1;
+	int TCCR2B = -1;
+	int TCNT2  = -1;
+	int OCR2A = -1;
+	int TIMSK2 = -1;
+
 // ----[ delay() implementation ]--------------------------------------
 
 

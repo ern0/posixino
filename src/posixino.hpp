@@ -75,25 +75,25 @@ void loop();
 
 # define ISR(vector) void vector()
 
-void TIMER0_COMPA_vect();
+extern void TIMER0_COMPA_vect();
 # ifdef TIMER0
 # define __TIMER_USED
 # else
-ISR(TIMER0_COMPA_vect) { }
+ISR(TIMER0_COMPA_vect);
 # endif
 
-void TIMER1_COMPA_vect();
+extern void TIMER1_COMPA_vect();
 # ifdef TIMER1
 # define __TIMER_USED
 # else
-ISR(TIMER1_COMPA_vect) { }
+ISR(TIMER1_COMPA_vect);
 # endif
 
-void TIMER2_COMPA_vect();
+extern void TIMER2_COMPA_vect();
 # ifdef TIMER2
 # define __TIMER_USED
 # else
-ISR(TIMER2_COMPA_vect) { }
+ISR(TIMER2_COMPA_vect);
 # endif
 
 # ifdef __TIMER_USED
@@ -105,22 +105,22 @@ ISR(TIMER2_COMPA_vect) { }
 
 // Timer interrupts globals and constats
 
-int TCCR0A = -1;
-int TCCR0B = -1;
-int TCNT0  = -1;
-int OCR0A = -1;
-int TIMSK0 = -1;
+extern int TCCR0A;
+extern int TCCR0B;
+extern int TCNT0;
+extern int OCR0A;
+extern int TIMSK0;
 
 # define WGM01 (0)
 # define CS00 (0)
 # define CS01 (0)
 # define OCIE0A (0)
 		
-int TCCR1A = -1;
-int TCCR1B = -1;
-int TCNT1  = -1;
-int OCR1A = -1;
-int TIMSK1 = -1;
+extern int TCCR1A;
+extern int TCCR1B;
+extern int TCNT1;
+extern int OCR1A;
+extern int TIMSK1;
 
 # define WGM12 (0)
 # define CS10 (0)
@@ -128,11 +128,11 @@ int TIMSK1 = -1;
 # define CS12 (0)
 # define	OCIE1A (0)
 
-int TCCR2A = -1;
-int TCCR2B = -1;
-int TCNT2  = -1;
-int OCR2A = -1;
-int TIMSK2 = -1;
+extern int TCCR2A;
+extern int TCCR2B;
+extern int TCNT2;
+extern int OCR2A;
+extern int TIMSK2;
 
 # define WGM21 (0)
 # define CS21 (0)
@@ -263,6 +263,8 @@ class SerialClass {
 
 }; // SerialClass
 
+extern SerialClass Serial;
+
 
 class LiquidCrystal {
 
@@ -309,6 +311,8 @@ class EthernetClass {
 		char* localIP();
 	
 }; // class EthernetClass
+
+extern EthernetClass Ethernet;
 
 
 class IPAddress {
