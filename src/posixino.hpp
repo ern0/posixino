@@ -1,11 +1,14 @@
+# ifndef POSIXINO
 /* ********************************************************************** */
+// skip the whole file, if it's not a POSIX environment
+//
+# if ( defined(__unix__) || defined(__APPLE__) )
 
 // You can use this for separating embedded and desktop code:
 // # ifdef POSIXINO
 // printf("debug: %d \n",whatever)
 // # endif
 //
-# ifndef POSIXINO
 # define POSIXINO
 
 // This is the number of dots printed to screen
@@ -494,5 +497,5 @@ class Adafruit_NeoPixel {
 	
 }; // class Adafruit_NeoPixel
 
-
+# endif
 # endif
