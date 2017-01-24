@@ -10,7 +10,7 @@
 	int argc;
 	char** argv;
 
-
+	#ifndef POSIXINO_CONFIG_MAIN
 	int main(int pargc,char* pargv[]) {
  
 		atexit(cleanup);
@@ -29,7 +29,7 @@
 			delay(10);
 		}
 	} // main()
-	
+	#endif
 	
 	void quit(int sig) {
 	

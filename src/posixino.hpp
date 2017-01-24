@@ -71,16 +71,19 @@ extern char** argv;
 
 // Unix functions
 
+#ifndef POSIXINO_CONFIG_MAIN
 int main(int argc,char* argv[]);
+#endif
 void quit(int sig);
 void cleanup();
 
 
 // Arduino entry points
 
+#ifndef POSIXINO_CONFIG_MAIN
 void setup();
 void loop();
-
+#endif
 
 // Timer interrupts macro and stubs 
 
