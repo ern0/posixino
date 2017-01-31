@@ -12,14 +12,17 @@
 # define POSIXINO
 
 // This is the number of dots printed to screen
-// You may redefine it in your program
+// You may redefine it in your program (before including this file)
 //
+# ifndef NO_OF_DIGI_OUTS 
 # define NO_OF_DIGI_OUTS (20)
+# endif
 
-// Just simply define this in your program
+// Just simply define this in your program 
 // for displaying RGB pixels with SDL library
+// (Value: no. of display, not tested, use 0)
 //
-# undef SDL_DISPLAY
+// # define SDL_DISPLAY 0
 
 // Timer interrupt emulation requires std::thread, 
 // so use -std=c++11 compiler option

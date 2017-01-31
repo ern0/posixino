@@ -1,7 +1,7 @@
-# if ( defined(__unix__) || defined(__APPLE__) )
-# define SDL_DISPLAY (0)
+# define SDL_DISPLAY 0
 # include "../../src/posixino.cpp"
-# else
+
+# ifndef POSIXINO
 #include <Adafruit_NeoPixel.h>
 # endif
 
