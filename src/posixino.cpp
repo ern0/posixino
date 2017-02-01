@@ -320,7 +320,7 @@
 		::printf((char*)"%c",chr);
 		fflush(stdout);
 		
-		if (chr == 0x0a) {
+		if ( (chr == '\n') || (chr == '\r') ) {
 			posx = 0;
 		} else {
 			posx++;
