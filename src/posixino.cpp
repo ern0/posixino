@@ -1411,4 +1411,9 @@
 
 	# endif
 
+// ----[ ESP8266 IoT framework ]---------------------------------------
+
+void wifi_set_channel(int ch) { }
+int wifi_get_channel() { return 1; }
+
 // ----[ more to come... ]---------------------------------------------

@@ -190,6 +190,10 @@ typedef string String;
 # define OCT 8
 # define BIN 2
 
+// ESP8266 IoT framework functions
+void wifi_set_channel(int ch);
+int wifi_get_channel();
+
 
 // Implementation
 
