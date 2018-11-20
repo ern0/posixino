@@ -204,10 +204,10 @@ class Adafruit_NeoPixel;
 
 class Posixino {
 
-	friend SerialClass;
-	friend LiquidCrystal;
-	friend EthernetServer;
-	friend Adafruit_NeoPixel;
+	friend class SerialClass;
+	friend class LiquidCrystal;
+	friend class EthernetServer;
+	friend class Adafruit_NeoPixel;
 
 	private:
     struct termios orig_term_attr;
@@ -354,7 +354,7 @@ class IPAddress {
 
 class EthernetClient {
 
-	friend EthernetServer;
+	friend class EthernetServer;
 
 	private:
 		EthernetServer* server;
@@ -386,7 +386,7 @@ class EthernetClient {
 
 class EthernetServer {
 
-	friend EthernetClient;
+	friend class EthernetClient;
 
 	private:
 		bool initialized;
@@ -474,7 +474,7 @@ class Adafruit_NeoPixel {
 	private:
 		bool sdlInitialized;
 		SDL_Window* window;
-		SDL_Surface* screenSurface;
+		SDL_Renderer* renderer;
 		EmuPixel* emuPixels;
 
 		const char* gridAnchor;

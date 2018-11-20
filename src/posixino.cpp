@@ -1210,6 +1210,9 @@
 	
 		initializeSdl();
 		
+		SDL_SetRenderDrawColor(renderer,0,0,0,SDL_ALPHA_OPAQUE);  
+		SDL_RenderClear(renderer);
+		
 		for (int n = 0; n < numberOfPixels; n++) {
 			EmuPixel& epix = emuPixels[n];
 			
@@ -1224,15 +1227,12 @@
 			rect.w = epix.width;
 			rect.h = epix.height;
 			
-			SDL_FillRect(
-				screenSurface,
-				&rect, 
-				SDL_MapRGB(screenSurface->format,r,g,b)
-			);
+			SDL_SetRenderDrawColor(renderer,r,g,b,SDL_ALPHA_OPAQUE);
+			SDL_RenderFillRect(renderer,&rect);
 			
 		} // for pixels
-	
-		SDL_UpdateWindowSurface(window);
+
+		SDL_RenderPresent(renderer);
 		quitOnKey();
 			
 	} // show()	
@@ -1253,14 +1253,15 @@
 			"Posixino",
 			windowPosX,
 			windowPosY,
-			windowWidth,
-			windowHeight,
+			windowWidth - 1,
+			windowHeight - 1,
 			SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS
 		);		
 		
-		screenSurface = SDL_GetWindowSurface(window);
-		SDL_FillRect(screenSurface,NULL,0);
-		SDL_UpdateWindowSurface(window);
+		renderer = SDL_CreateRenderer(window,-1,0);
+
+		SDL_PumpEvents();
+		SDL_SetWindowSize(window,windowWidth,windowHeight);		
 	
 	} // initializeSdl()
 
